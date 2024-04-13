@@ -44,5 +44,7 @@ void *xmalloc(size_t size);
 void *xreallocarray(void *ptr, size_t nmemb,size_t size);
 char *readfile(char* filename);
 char* csvtrim(const char * raw);
+regexarray * reg_init(void);
+int typedata(regexarray * p,const char * strtest);
 
 #endif 

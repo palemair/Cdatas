@@ -1,21 +1,29 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  csv_tools.c
+ *
+ *    Description:  different tools for csv extracting datas 
+ *
+ *        Version:  1.0
+ *        Created:  12/04/2024 09:06:27
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  LP 
+ *   Organization:  
+ *
+ * =====================================================================================
+ */
+
 #define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
+#include "csv.h"
 
-#define START clock_t end,start = clock()
-#define STOP end = clock()
-#define TPS printf("\ntemps écoulé : %f \n", (((double)end - start) / CLOCKS_PER_SEC))
-
+/* malloc custom to avoid error test */
 void *xmalloc(size_t size)
 {
-    void* value = malloc (size);
+    void* value = NULL;
+    value = malloc (size);
 
     if (value == NULL)
     {
@@ -26,6 +34,7 @@ void *xmalloc(size_t size)
     return value;
 }
 
+/* reallocarray custom to avoid error test */
 void *xreallocarray(void *ptr, size_t nmemb,size_t size)
 {
     void*value = reallocarray (ptr, nmemb, size);
@@ -37,32 +46,49 @@ void *xreallocarray(void *ptr, size_t nmemb,size_t size)
     return value;
 }
 
+/* load an entire file in a char buffer */
 char *readfile(char* filename)
 {
-    int fd;
+    int fd = 0;
     
-    fd = open("t.csv",O_RDONLY,0);
+    if((fd = open(filename,O_RDONLY,0)) != -1)
+    {
+        off_t lg = lseek(fd,0,SEEK_END);
+        lseek(fd,0,SEEK_SET);
     
-    off_t lg = lseek(fd,0,SEEK_END);
-    lseek(fd,0,SEEK_SET);
-    
-    printf("%zu\n",(long)lg);
-    char *buffer = xmalloc(lg + 1);
+        if(lg>0)
+        {
+            char *buffer = xmalloc(lg + 1);
+            ssize_t n = read(fd,buffer,lg);
 
-    ssize_t n = read(fd,buffer,lg);
-
-    char *p = buffer;
-    *(p + lg + 1) = EOF;
-
-    printf("%zu\n",(long)n);
-    
-    while(*p != EOF) putchar(*p++);
-    
-    close(fd);
-
-    return buffer;
+            if( n == -1)
+            {
+                perror("read error");
+                close(fd);
+                return NULL;
+            }
+            else
+            {
+                char *p = buffer;
+                *(p + lg + 1 ) = '\0';
+                close(fd);
+                return buffer;
+            }
+         }
+        else
+        {
+            close(fd);
+            return NULL;
+        }
+    }
+    else
+    {
+        perror("readfile");
+        return NULL;
+    }
 }
 
+/* delete left and right space char + double quotes in a field */
 char* csvtrim(const char * raw)
 {
     char *rawfield = strdupa(raw);
