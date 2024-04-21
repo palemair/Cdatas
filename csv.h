@@ -79,7 +79,7 @@ int typedata (regexarray * p, const char *strtest);
 int assign (struct field *fd, const char *value, int datatype);
 
 struct list *init_list (void);
-struct table *init_table (char delim, bool header, int init_height);
+struct table *init_table (char delim, bool header);
 int append (struct list **ls, regexarray * rg, void *value);
 
 int load_csv (char *filename, char delim, bool header);

@@ -131,14 +131,14 @@ struct list *init_list (void)
    return new;
 }
 
-struct table *init_table (char delim, bool header, int init_height)
+struct table *init_table (char delim, bool header)
 {
    struct table *new = xmalloc (sizeof (*new));
    new->Dlim = delim;
    new->header = header;
    new->width = 0;
    new->height = 0;
-   new->t = xmalloc (sizeof (struct list *) * init_height);
+   new->t = NULL;
 
    return new;
 }

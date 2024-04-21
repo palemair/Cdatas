@@ -4,9 +4,13 @@
 
 int parse_csv (char *datas, regexarray * rp, struct table **tb)
 {
+   unsigned int k = 1;
    typedef enum { DELIM = ',', ENDL = '\n', DQUOTE = '\"', OUTQ, INQ } position;
    const unsigned char SIZE = 64;
-   struct list **curr = (*tb)->t;
+   uint32_t tsize = 50;
+   struct list **tmp = xmalloc(tsize * sizeof(struct list*));
+   struct list **curr = tmp;
+
    *curr = init_list ();
    char *p = datas;
    int c;
@@ -49,9 +53,22 @@ int parse_csv (char *datas, regexarray * rp, struct table **tb)
 
          if (c == ENDL)
          {
-            curr++;
-            *curr = init_list ();
-            (*tb)->height++;
+            if((*tb)->height > (tsize - 2))
+            {
+                k++;
+                tmp = xreallocarray(tmp, k * tsize,sizeof(struct list*));
+                tsize = k * tsize;
+                curr = (tmp + (*tb)->height + 1);
+                *curr = init_list ();
+                 (*tb)->height++;
+
+            }
+            else
+            {
+                curr++;
+                *curr = init_list ();
+                (*tb)->height++;
+            }
          }
          free (pf);
          count = 0;
@@ -64,13 +81,14 @@ int parse_csv (char *datas, regexarray * rp, struct table **tb)
    }
 
    free (cell);
+   (*tb)->t = tmp;
 
    return (EXIT_SUCCESS);
 }
 
 int main ()
 {
-   char *filename = "CSV-file/xaa";
+   char *filename = "CSV-file/technic.csv";
    char delim = ',';
    bool header = false;
 
@@ -78,7 +96,7 @@ int main ()
    char *buffer = readfile (filename);
 
    struct table *tb;
-   tb = init_table (delim, header, 1024);
+   tb = init_table (delim, header);
    START;
    parse_csv (buffer, rp, &tb);
    STOP;
@@ -92,7 +110,7 @@ int main ()
    {
       tmp = tb->t[u];
       f = tmp->head;
-      tb->header == true ? printf ("%d > ", u) : printf ("%d > ", u + 1);
+      tb->header == true ? printf ("%5d > ", u) : printf ("%5d > ", u + 1);
       while (f)
       {
          switch (f->datatype)
