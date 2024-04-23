@@ -26,6 +26,7 @@
 
 /* globals */
 enum { LONG, FLOAT, TIME, DATE, PERCENT, STRING, NIL };
+typedef enum { DELIM = ',', ENDL = '\n', DQUOTE = '\"', OUTQ, INQ } position;
 
 /* STRUCTURES */
 /* ~~~~~~~~~~~*/
@@ -82,7 +83,7 @@ struct list *init_list (void);
 struct table *init_table (char delim, bool header);
 int append (struct list **ls, regexarray * rg, void *value);
 
-int load_csv (char *filename, char delim, bool header);
+struct table* load_csv (char *filename, char delim, bool header);
 int parse_csv (char *datas, regexarray * rp, struct table **tb);
 
 #endif

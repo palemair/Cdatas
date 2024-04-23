@@ -4,10 +4,9 @@
 
 int parse_csv (char *datas, regexarray * rp, struct table **tb)
 {
-   unsigned int k = 1;
-   typedef enum { DELIM = ',', ENDL = '\n', DQUOTE = '\"', OUTQ, INQ } position;
+   const unsigned int k = 2;
    const unsigned char SIZE = 64;
-   uint32_t tsize = 50;
+   uint32_t tsize = 1024;
    struct list **tmp = xmalloc(tsize * sizeof(struct list*));
    struct list **curr = tmp;
 
@@ -19,6 +18,10 @@ int parse_csv (char *datas, regexarray * rp, struct table **tb)
    size_t nb = 1;
    char *pf = NULL;
    position state = OUTQ;
+
+   uint16_t curr_width, max_width;
+   curr_width = 0;
+   max_width = 0;
 
    while ((c = *p++))
    {
@@ -45,6 +48,8 @@ int parse_csv (char *datas, regexarray * rp, struct table **tb)
       else if (state == OUTQ && ((c == DELIM) || (c == ENDL)))
       {
          *(cell + count) = '\0';
+         curr_width++;
+
          pf = csvtrim (cell);
 
          int err = append (curr, rp, pf);
@@ -53,22 +58,23 @@ int parse_csv (char *datas, regexarray * rp, struct table **tb)
 
          if (c == ENDL)
          {
+            max_width = (curr_width >= max_width) ? curr_width : max_width;
+
             if((*tb)->height > (tsize - 2))
             {
-                k++;
+                /* k++; */
                 tmp = xreallocarray(tmp, k * tsize,sizeof(struct list*));
-                tsize = k * tsize;
+                tsize <<= 1;
                 curr = (tmp + (*tb)->height + 1);
                 *curr = init_list ();
-                 (*tb)->height++;
-
             }
             else
             {
                 curr++;
                 *curr = init_list ();
-                (*tb)->height++;
             }
+            (*tb)->height++;
+            curr_width = 0;
          }
          free (pf);
          count = 0;
@@ -81,35 +87,54 @@ int parse_csv (char *datas, regexarray * rp, struct table **tb)
    }
 
    free (cell);
+   tmp = xreallocarray(tmp, (*tb)->height,sizeof(struct list*));
    (*tb)->t = tmp;
-
+   (*tb)->width = max_width;
    return (EXIT_SUCCESS);
+}
+
+struct table* load_csv(char* filename, char delim, bool header)
+{
+   regexarray *rp = reg_init ();
+   char *buffer = readfile (filename);
+   if(buffer == NULL)
+   {
+       fprintf(stderr,"%s","error readfile");
+       return NULL;
+   }
+
+   struct table *tb = init_table (delim, header);
+   START;
+   parse_csv (buffer, rp, &tb);
+   STOP;
+   TPS ("parse_csv");
+
+   free_reg (rp);
+   free (buffer);
+
+   return tb;
 }
 
 int main ()
 {
-   char *filename = "CSV-file/technic.csv";
-   char delim = ',';
-   bool header = false;
+   struct table *tb = load_csv("xaa",',',false);
 
-   regexarray *rp = reg_init ();
-   char *buffer = readfile (filename);
-
-   struct table *tb;
-   tb = init_table (delim, header);
-   START;
-   parse_csv (buffer, rp, &tb);
-   STOP;
-
-   TPS ("parse_csv");
 
    struct list *tmp = NULL;
    struct field *f;
-
+    
    for (int u = 0; u < (int) tb->height; u++)
    {
       tmp = tb->t[u];
       f = tmp->head;
+      if(u==10)
+      {
+           puts("       .............");
+           printf("\n");
+      }
+      if((u>10) && (u< (int) tb->height -10)) 
+          continue;
+
       tb->header == true ? printf ("%5d > ", u) : printf ("%5d > ", u + 1);
       while (f)
       {
@@ -142,8 +167,17 @@ int main ()
       printf ("\n");
    }
 
-   free_reg (rp);
-   free (buffer);
+/* freetable */
+   /* for (int u = 0; u < (int) tb->height; u++) */
+   /* { */
+   /*    tmp = tb->t[u]; */
+   /*    f = tmp->tail; */
+   /*    while (f) */
+   /*    { */
+   /*       f = f->prv; */
+   /*    } */
+   /*    /1* printf ("\n"); *1/ */
+   /* } */
 
    return EXIT_SUCCESS;
 }
