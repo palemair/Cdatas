@@ -46,49 +46,6 @@ void *xreallocarray (void *ptr, size_t nmemb, size_t size)
    return value;
 }
 
-/* load an entire file in a char buffer */
-char *readfile (char *filename)
-{
-   int fd = 0;
-   char *buffer = NULL;
-
-   if ((fd = open (filename, O_RDONLY, 0)) != -1)
-   {
-      off_t lg = lseek (fd, 0, SEEK_END);
-      lseek (fd, 0, SEEK_SET);
-
-      if (lg > 0)
-      {
-         buffer = xmalloc (lg + 1);
-         memset (buffer, 0, lg + 1);
-         ssize_t n = read (fd, buffer, lg);
-
-         if (n == -1)
-         {
-            perror ("read error");
-            close (fd);
-            return NULL;
-         }
-         else
-         {
-            *(buffer + lg) = '\0';
-            close (fd);
-            return buffer;
-         }
-      }
-      else
-      {
-         close (fd);
-         return NULL;
-      }
-   }
-   else
-   {
-      perror ("readfile");
-      return NULL;
-   }
-}
-
 /* delete left and right space char + double quotes in a field */
 char *csvtrim (const char *raw)
 {

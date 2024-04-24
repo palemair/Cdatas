@@ -2,9 +2,51 @@
 #define _GNU_SOURCE
 #include "csv.h"
 
+/* load an entire file in a char buffer */
+char *readfile (char *filename)
+{
+   int fd = 0;
+   char *buffer = NULL;
+
+   if ((fd = open (filename, O_RDONLY, 0)) != -1)
+   {
+      off_t lg = lseek (fd, 0, SEEK_END);
+      lseek (fd, 0, SEEK_SET);
+
+      if (lg > 0)
+      {
+         buffer = xmalloc (lg + 1);
+         memset (buffer, 0, lg + 1);
+         ssize_t n = read (fd, buffer, lg);
+
+         if (n == -1)
+         {
+            perror ("read error");
+            close (fd);
+            return NULL;
+         }
+         else
+         {
+            *(buffer + lg) = '\0';
+            close (fd);
+            return buffer;
+         }
+      }
+      else
+      {
+         close (fd);
+         return NULL;
+      }
+   }
+   else
+   {
+      perror ("readfile");
+      return NULL;
+   }
+}
+
 int parse_csv (char *datas, regexarray * rp, struct table **tb)
 {
-   const unsigned int k = 2;
    const unsigned char SIZE = 64;
    uint32_t tsize = 1024;
    struct list **tmp = xmalloc(tsize * sizeof(struct list*));
@@ -55,7 +97,8 @@ int parse_csv (char *datas, regexarray * rp, struct table **tb)
          int err = append (curr, rp, pf);
          if (err)
             fprintf (stderr, "%s\n", "append error");
-
+         free (pf);
+         
          if (c == ENDL)
          {
             max_width = (curr_width >= max_width) ? curr_width : max_width;
@@ -63,20 +106,18 @@ int parse_csv (char *datas, regexarray * rp, struct table **tb)
             if((*tb)->height > (tsize - 2))
             {
                 /* k++; */
-                tmp = xreallocarray(tmp, k * tsize,sizeof(struct list*));
+                tmp = xreallocarray(tmp, 2 * tsize,sizeof(struct list*));
                 tsize <<= 1;
                 curr = (tmp + (*tb)->height + 1);
-                *curr = init_list ();
             }
             else
             {
                 curr++;
-                *curr = init_list ();
             }
+            *curr = init_list ();
             (*tb)->height++;
             curr_width = 0;
          }
-         free (pf);
          count = 0;
          memset (cell, 0, nb * SIZE);
          continue;
@@ -86,6 +127,7 @@ int parse_csv (char *datas, regexarray * rp, struct table **tb)
       count++;
    }
 
+   free (*curr);
    free (cell);
    tmp = xreallocarray(tmp, (*tb)->height,sizeof(struct list*));
    (*tb)->t = tmp;
@@ -104,10 +146,12 @@ struct table* load_csv(char* filename, char delim, bool header)
    }
 
    struct table *tb = init_table (delim, header);
-   START;
-   parse_csv (buffer, rp, &tb);
-   STOP;
-   TPS ("parse_csv");
+   int n = parse_csv (buffer, rp, &tb);
+   if(n != EXIT_SUCCESS)
+   {
+       fprintf(stderr,"%s","error parse_csv");
+       return NULL;
+   }
 
    free_reg (rp);
    free (buffer);
@@ -115,14 +159,46 @@ struct table* load_csv(char* filename, char delim, bool header)
    return tb;
 }
 
+void clear_row(struct list *ls)
+{
+   struct field *tmp;
+   struct field *pelem = ls->head;
+   while(pelem)
+   {
+     tmp = pelem;
+     if(tmp->datatype & STRING) 
+     {
+        free(tmp->strdata);
+     }
+     pelem = pelem->nxt;
+     free(tmp);
+   }
+   ls->head = NULL;
+   ls->tail = NULL;
+}
+
+void drop_table(struct table *tb)
+{
+   for (int u = 0; u < (int) tb->height; u++)
+   {
+       clear_row(tb->t[u]);
+       free(tb->t[u]);
+   }
+   free(tb->t);
+   free(tb);
+}
+
 int main ()
 {
-   struct table *tb = load_csv("xaa",',',false);
+   START;
+   struct table *tb = load_csv("CSV-file/technic.csv",',',false);
 
+   STOP;
+   TPS ("load_csv");
 
    struct list *tmp = NULL;
    struct field *f;
-    
+   
    for (int u = 0; u < (int) tb->height; u++)
    {
       tmp = tb->t[u];
@@ -153,12 +229,12 @@ int main ()
             }
          case NIL:
             {
-               printf ("%20.20s ", f->strdata);
+               printf ("%20.20s ", "---");
                break;
             }
          case STRING:
             {
-               printf ("%-20.20s ", f->strdata);
+               printf ("%-25.25s ", f->strdata);
                break;
             }
          }
@@ -167,17 +243,7 @@ int main ()
       printf ("\n");
    }
 
-/* freetable */
-   /* for (int u = 0; u < (int) tb->height; u++) */
-   /* { */
-   /*    tmp = tb->t[u]; */
-   /*    f = tmp->tail; */
-   /*    while (f) */
-   /*    { */
-   /*       f = f->prv; */
-   /*    } */
-   /*    /1* printf ("\n"); *1/ */
-   /* } */
+drop_table(tb);
 
    return EXIT_SUCCESS;
 }

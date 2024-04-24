@@ -78,14 +78,14 @@ int typedata (regexarray * p, const char *strtest)
    else
    {
        int match;
-   regex_t *patterns = p->reg_list;
-   int lg = p->lgreg_list;
+       regex_t *patterns = p->reg_list;
+       int lg = p->lgreg_list;
 
-   for (int type = 0; type < lg; type++)
-   {
-      match = regexec (&patterns[type], strtest, 0, NULL, 0);
-      if (match == 0)
-      {
+       for (int type = 0; type < lg; type++)
+        {
+        match = regexec (&patterns[type], strtest, 0, NULL, 0);
+        if (match == 0)
+        {
          switch (type)
          {
          case LONG:
