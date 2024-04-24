@@ -71,7 +71,7 @@ void free_reg (regexarray * rp)
 
 int typedata (regexarray * p, const char *strtest)
 {
-   if (strlen (strtest) == 0)
+   if (strtest == NULL)
    {
        return (NIL);
    }
@@ -146,6 +146,10 @@ int assign (struct field *fd, const char *value, int datatype)
    case TIME:
    case DATE:
    case NIL:
+      {
+         fd->strdata = NULL;
+         break;
+      }
    case STRING:
       {
          if (NULL == (fd->strdata = strdup (value)))

@@ -62,8 +62,7 @@ char *csvtrim (const char *raw)
       {
          if (end-- == begin)
          {
-            char p[] = "       (null)       ";
-            return strdup(p);
+            return NULL;
          }
       }
 
