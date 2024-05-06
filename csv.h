@@ -25,18 +25,11 @@
 #define ARRAYSIZE(p) (sizeof(p) / sizeof(p[0]))
 
 /* globals */
-enum { LONG, FLOAT, TIME, DATE, PERCENT, STRING, NIL };
-typedef enum { DELIM = ',', ENDL = '\n', DQUOTE = '\"', OUTQ, INQ } position;
+enum { LONG = 0x00, FLOAT = 0x01, TIME = 0x02, DATE= 4, PERCENT= 8, STRING=16, NIL=32 };
+typedef enum { ENDL = '\n', DQUOTE = '\"', OUTQ, INQ } position;
 
 /* STRUCTURES */
 /* ~~~~~~~~~~~*/
-/* regular expression vector */
-typedef struct
-{
-   unsigned char lgreg_list;
-   regex_t *reg_list;
-} regexarray;
-
 /* simple csv field */
 struct field
 {
@@ -54,6 +47,7 @@ struct field
 /* linked list for row */
 struct list
 {
+   uint16_t len;
    struct field *head;
    struct field *tail;
 };
@@ -68,22 +62,37 @@ struct table
    uint32_t height;
 };
 
+/* regular expression vector */
+typedef struct
+{
+   unsigned char lgreg_list;
+   regex_t *reg_list;
+} regexarray;
+
 /* prototypes */
+
 void *xmalloc (size_t size);
 void *xreallocarray (void *ptr, size_t nmemb, size_t size);
-char *readfile (char *filename);
-char *csvtrim (const char *raw);
+char *xtrim (const char *raw);
+char *xreadfile (char *filename);
+
 regexarray *reg_init (void);
 void free_reg (regexarray * rp);
 
 int typedata (regexarray * p, const char *strtest);
 int assign (struct field *fd, const char *value, int datatype);
+int try_assign(struct field* f,void* value,regexarray* rg);
 
 struct list *init_list (void);
 struct table *init_table (char delim, bool header);
+void del_list (struct list* ls);
+void drop_table (struct table* tb);
+
+
 int append (struct list **ls, regexarray * rg, void *value);
 
 struct table* load_csv (char *filename, char delim, bool header);
 int parse_csv (char *datas, regexarray * rp, struct table **tb);
+
 
 #endif

@@ -18,123 +18,113 @@
 
 #define _GNU_SOURCE
 #include "csv.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 /* malloc custom to avoid error test */
-void *xmalloc (size_t size)
+void* xmalloc (size_t size)
 {
-   void *value = NULL;
-   value = malloc (size);
+    void* value = NULL;
 
-   if (value == NULL)
-   {
-      perror ("Virtual memory exhausted");
-      exit (EXIT_FAILURE);
-   }
+    value = malloc (size);
 
-   return value;
+    if (value == NULL)
+    {
+        perror ("Virtual memory exhausted");
+        exit (EXIT_FAILURE);
+    }
+
+    return value;
 }
 
 /* reallocarray custom to avoid error test */
-void *xreallocarray (void *ptr, size_t nmemb, size_t size)
+void* xreallocarray (void* ptr, size_t nmemb, size_t size)
 {
-   void *value = reallocarray (ptr, nmemb, size);
-   if (value == 0)
-   {
-      perror ("Virtual memory exhausted");
-      exit (EXIT_FAILURE);
-   }
-   return value;
+    void* value = reallocarray (ptr, nmemb, size);
+
+    if (value == 0)
+    {
+        perror ("Virtual memory exhausted");
+        exit (EXIT_FAILURE);
+    }
+    return value;
 }
 
 /* delete left and right space char + double quotes in a field */
-char *csvtrim (const char *raw)
+char* xtrim (const char* raw)
 {
-      char *rawfield = strdupa (raw);
-      char *begin = rawfield;
-      char *end = rawmemchr (begin, '\0');
-      if (end == NULL)
-      {
-         perror ("rawmemchr");
-         return NULL;
-      }
+    char* rawfield = strdupa (raw);
+    char* begin = rawfield;
+    char* end = rawmemchr (begin, '\0');
 
-      while (isspace (*end) || *end == '\0' || *end == '"')
-      {
-         if (end-- == begin)
-         {
+    if (end == NULL)
+    {
+        perror ("rawmemchr");
+        return NULL;
+    }
+
+    while (isspace (*end) || *end == '\0' || *end == '"')
+    {
+        if (end-- == begin)
+        {
             return NULL;
-         }
-      }
+        }
+    }
 
-      while (isspace (*begin) || *begin == '"')
-         begin++;
+    while (isspace (*begin) || *begin == '"')
+        begin++;
 
-      size_t len = ++end - begin;
+    size_t len = ++end - begin;
 
-      char scopy[len + 1];
-      memcpy (scopy, begin, len);
-      scopy[len] = '\0';
+    char scopy[len + 1];
 
-      return strdup (scopy);
+    memcpy (scopy, begin, len);
+    scopy[len] = '\0';
+
+    return strdup (scopy);
 }
 
-struct list *init_list (void)
+/* load an entire file in a char buffer */
+char* xreadfile (char* filename)
 {
-   struct list *new = xmalloc (sizeof (*new));
-   new->head = NULL;
-   new->tail = NULL;
+    int fd = 0;
+    char* buffer = NULL;
 
-   return new;
-}
+    struct stat* bufstat = xmalloc(sizeof(*bufstat));
+    stat(filename,bufstat);
+    
+    off_t lg = bufstat->st_size;
+    free(bufstat);
 
-struct table *init_table (char delim, bool header)
-{
-   struct table *new = xmalloc (sizeof (*new));
-   new->Dlim = delim;
-   new->header = header;
-   new->width = 0;
-   new->height = 0;
-   new->t = NULL;
-
-   return new;
-}
-
-int append (struct list **ls, regexarray * rg, void *value)
-{
-   int Error_assign = 0;
-
-   if (*ls == NULL)
-   {
-      fprintf (stderr, "%s\n", "Init struct list first !!");
-      return 0;
-   }
-   else
-   {
-      struct field *new = xmalloc (sizeof (*new));
-      new->nxt = NULL;
-      new->datatype = typedata (rg, value);
-      Error_assign = assign (new, value, new->datatype);
-
-      if (Error_assign)
-      {
-         fprintf (stderr, "%s\n", "assignement error !!");
-         exit (EXIT_FAILURE);
-      }
-
-      if ((*ls)->tail == NULL)
-      {
-         new->prv = (*ls)->tail;
-         (*ls)->tail = new;
-         (*ls)->head = new;
-
-         return EXIT_SUCCESS;
-      }
-      else
-      {
-         new->prv = (*ls)->tail;
-         (*ls)->tail->nxt = new;
-         (*ls)->tail = new;
-      }
-   }
-   return EXIT_SUCCESS;
+    if ((fd = open (filename, O_RDONLY, 0)) != -1)
+    {
+        if (lg > 0)
+        {
+            buffer = xmalloc (lg + 1);
+            ssize_t n = read (fd, buffer, lg);
+            if (n == -1)
+            {
+                perror ("read error");
+                close (fd);
+                return NULL;
+            }
+            else
+            {
+                *(buffer + lg) = '\0';
+                close (fd);
+                return buffer;
+            }
+        }
+        else
+        {
+            close (fd);
+            return NULL;
+        }
+    }
+    else
+    {
+        perror ("readfile");
+        return NULL;
+    }
 }
