@@ -12,7 +12,7 @@
 int main ()
 {
     START;
-    struct table* tb = load_csv ("xxa", '|', true);
+    struct table* tb = load_csv ("CSV-file/xaa", ',', true);
     STOP;
     
     printall(tb);

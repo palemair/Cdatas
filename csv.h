@@ -9,17 +9,12 @@
 #include <ctype.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <time.h>
-#include <regex.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <errno.h>
+#include "regexarray.h"
 #include "xtools.h"
 
 /* globals */
-enum { LONG = 0x00, FLOAT = 0x01, TIME = 0x02, DATE= 4, PERCENT= 8, STRING=16, NIL=32 };
+enum { LONG = 0x00, FLOAT = 0x01, TIME = 0x02, DATE= 0x04, PERCENT= 8, STRING=16, NIL=32 };
 typedef enum { ENDL = '\n', DQUOTE = '\"', OUTQ, INQ } position;
 
 /* STRUCTURES */
@@ -56,17 +51,7 @@ struct table
    uint32_t height;
 };
 
-/* regular expression vector */
-typedef struct
-{
-   unsigned char lgreg_list;
-   regex_t *reg_list;
-} regexarray;
-
 /* prototypes */
-
-regexarray *reg_init (void);
-void free_reg (regexarray * rp);
 
 int typedata (regexarray * p, const char *strtest);
 int assign (struct field *fd, const char *value, int datatype);

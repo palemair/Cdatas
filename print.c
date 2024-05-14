@@ -17,7 +17,7 @@ int print(struct table* tb, uint32_t start, uint32_t stop )
     struct list** tmp = NULL;
     struct field* f;
     uint8_t lgstr = 15;
-    uint8_t lgnumber = 15;
+    uint8_t lgnumber = 10;
     uint8_t lgprecision = 3;
 
     if(tb->header)
@@ -44,23 +44,23 @@ int print(struct table* tb, uint32_t start, uint32_t stop )
             {
             case LONG:
                 {
-                    printf ("%*ld",lgnumber,f->lgdata);
+                    printf ("%*ld ",lgnumber,f->lgdata);
                     break;
                 }
 
             case FLOAT:
                 {
-                    printf ("%*.*f",lgnumber,lgprecision,f->dbdata);
+                    printf ("%*.*f ",lgnumber,lgprecision,f->dbdata);
                     break;
                 }
             case NIL:
                 {
-                    printf ("%*.*s",lgstr,lgstr,"-*-");
+                    printf ("%*.*s ",lgstr,lgstr,"-*-");
                     break;
                 }
             case STRING:
                 {
-                    printf ("%-*.*s",lgstr,lgstr,f->strdata);
+                    printf ("%-*.*s ",lgstr,lgstr,f->strdata);
                     break;
                 }
             }
