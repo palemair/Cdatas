@@ -16,13 +16,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
-
-/* Macros */
-#define START clock_t end,start = clock()
-#define STOP end = clock()
-#define TPS(str) printf("time for fnct : %s : %f \n",(str),(((double)end - start) / CLOCKS_PER_SEC))
-
-#define ARRAYSIZE(p) (sizeof(p) / sizeof(p[0]))
+#include "xtools.h"
 
 /* globals */
 enum { LONG = 0x00, FLOAT = 0x01, TIME = 0x02, DATE= 4, PERCENT= 8, STRING=16, NIL=32 };
@@ -70,11 +64,6 @@ typedef struct
 } regexarray;
 
 /* prototypes */
-
-void *xmalloc (size_t size);
-void *xreallocarray (void *ptr, size_t nmemb, size_t size);
-char *xtrim (const char *raw);
-char *xreadfile (char *filename);
 
 regexarray *reg_init (void);
 void free_reg (regexarray * rp);

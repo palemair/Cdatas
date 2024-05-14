@@ -88,8 +88,8 @@ struct table* load_csv (char* filename, char delim, bool header)
     char* buffer = xreadfile (filename);
     if (buffer == NULL)
     {
-        fprintf (stderr, "%s", "error readfile");
-        return NULL;
+        fprintf (stderr, "%s", "error readfile\n");
+        exit(EXIT_FAILURE);
     }
 
     struct table* tb = init_table (delim, header);

@@ -26,24 +26,6 @@ struct table* init_table (char delim, bool header)
     return new;
 }
 
-/* void del_field_by_index (struct list* ls,uint16_t index) */
-/* { */
-/*     struct field* curr = ls->head; */
-/*     struct field* tmp; */
-/*     uint8_t count = 0; */
-/*     while (curr && count++ != index) curr = curr->nxt; */
-
-/*     tmp = curr; */
-/*     curr->prv->nxt = curr->nxt; */
-/*     curr->nxt->prv = curr->prv; */
-
-/*     if (tmp->datatype & STRING) */
-/*         { */
-/*             free (tmp->strdata); */
-/*         } */
-/*         free (tmp); */
-/* } */
-
 void del_list (struct list* ls)
 {
     if(ls !=NULL)

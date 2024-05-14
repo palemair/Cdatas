@@ -12,14 +12,10 @@
 int main ()
 {
     START;
-    struct table* tb = load_csv ("CSV-file/technic.csv", ',', true);
+    struct table* tb = load_csv ("xxa", '|', true);
     STOP;
     
-    printf("nb de colonnes : %d\n", tb->width);
-    printf("nb de lignes : %d\n", tb->height);
-
-    head(tb);
-    tail(tb);
+    printall(tb);
 
     drop_table (tb);
 

@@ -1,21 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  extract_data.c
- *
- *    Description:  test value from csv with regex 
- *
- *        Version:  1.0
- *        Created:  15/04/2024 09:06:27
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  LP 
- *   Organization:  
- *
- * =====================================================================================
- */
-
 #define _GNU_SOURCE
 #include "csv.h"
 
@@ -171,14 +153,3 @@ int try_assign(struct field* f,void* value,regexarray* rg)
 
         return assign (f, value, f->datatype);
 }
-
-/* int main() */
-/* { */
-/*     regexarray* rp = reg_init (); */
-    
-/*     int n = typedata(rp,"3455445"); */
-/*     printf("%d\n",n); */
-
-/*     free_reg (rp); */
-
-/* } */

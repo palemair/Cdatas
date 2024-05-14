@@ -1,26 +1,5 @@
-/*
- * =====================================================================================
- *
- *       Filename:  csv_tools.c
- *
- *    Description:  different tools for csv extracting datas 
- *
- *        Version:  1.0
- *        Created:  12/04/2024 09:06:27
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  LP 
- *   Organization:  
- *
- * =====================================================================================
- */
-
 #define _GNU_SOURCE
-#include "csv.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#include "xtools.h"
 
 /* malloc custom to avoid error test */
 void* xmalloc (size_t size)
@@ -38,10 +17,10 @@ void* xmalloc (size_t size)
     return value;
 }
 
-/* reallocarray custom to avoid error test */
+/* realloc custom to avoid error test */
 void* xreallocarray (void* ptr, size_t nmemb, size_t size)
 {
-    void* value = reallocarray (ptr, nmemb, size);
+    void* value = reallocarray (ptr, nmemb , size);
 
     if (value == 0)
     {
@@ -51,16 +30,18 @@ void* xreallocarray (void* ptr, size_t nmemb, size_t size)
     return value;
 }
 
-/* delete left and right space char + double quotes in a field */
+/* delete left and right space char + double quotes in a char string */
 char* xtrim (const char* raw)
 {
-    char* rawfield = strdupa (raw);
+    size_t lg = strlen(raw) + 1;
+    char rawfield[lg];
+    memcpy(rawfield,raw,lg);
     char* begin = rawfield;
-    char* end = rawmemchr (begin, '\0');
+    char* end = strrchr (begin, '\0');
 
     if (end == NULL)
     {
-        perror ("rawmemchr");
+        perror ("strrchr failed, not à correct stringi !!");
         return NULL;
     }
 
@@ -77,12 +58,12 @@ char* xtrim (const char* raw)
 
     size_t len = ++end - begin;
 
-    char scopy[len + 1];
+    char *scopy = xmalloc(sizeof(char) * (len + 1));
 
     memcpy (scopy, begin, len);
     scopy[len] = '\0';
 
-    return strdup (scopy);
+    return scopy;
 }
 
 /* load an entire file in a char buffer */
