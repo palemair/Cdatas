@@ -1,5 +1,13 @@
 /* handle a csvfile with C */
 #include "print.h"
+enum { lgstr = 17, lgnumber = 17, lgprecision = 2};
+
+/* int first(struct table* tb) */
+/* { */
+/*     struct list* tmp = tb->t[0]; */
+
+/*     return 0; */
+/* } */
 
 int print(struct table* tb, uint32_t start, uint32_t stop )
 {
@@ -16,16 +24,13 @@ int print(struct table* tb, uint32_t start, uint32_t stop )
 
     struct list** tmp = NULL;
     struct field* f;
-    uint8_t lgstr = 15;
-    uint8_t lgnumber = 10;
-    uint8_t lgprecision = 3;
 
     if(tb->header)
     {
         struct field* fd = tb->t[0]->head;
         while(fd)
         {
-            printf("%*s",lgstr,fd->strdata);
+            printf("%*s ",lgstr,fd->strdata);
             fd = fd->nxt;
         }
         printf("\n");

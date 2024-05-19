@@ -2,62 +2,6 @@
 #define _GNU_SOURCE
 #include "csv.h"
 
-struct list* init_list (void)
-{
-    struct list* new = xmalloc (sizeof (*new));
-
-    new->len = 0;
-    new->head = NULL;
-    new->tail = NULL;
-
-    return new;
-}
-
-struct table* init_table (char delim, bool header)
-{
-    struct table* new = xmalloc (sizeof (*new));
-
-    new->Dlim = delim;
-    new->header = header;
-    new->width = 0;
-    new->height = 0;
-    new->t = NULL;
-
-    return new;
-}
-
-void del_list (struct list* ls)
-{
-    if(ls !=NULL)
-    {
-        struct field* tmp;
-        struct field* pfd = ls->head;
-        while (pfd)
-        {
-            tmp = pfd;
-            if (tmp->datatype & STRING)
-            {
-                free (tmp->strdata);
-            }
-            pfd = pfd->nxt;
-            free (tmp);
-        }
-        ls->head = NULL;
-        ls->tail = NULL;
-    }
-}
-
-void drop_table (struct table* tb)
-{
-    for (int u = 0; u < (int) tb->height; u++)
-    {
-        del_list (tb->t[u]);
-        free (tb->t[u]);
-    }
-    free (tb->t);
-    free (tb);
-}
-
 int append (struct list** ls, regexarray* rg, void* value)
 {
     int Error_assign = -1;
@@ -130,9 +74,8 @@ int typedata (regexarray * p, const char* strtest)
     }
 }
 
-int assign (struct field* fd, const char* value, int datatype)
+int assign (struct field* fd, const char* value)
 {
-    fd->datatype = datatype;
     int nbconv = 0;
     switch (fd->datatype)
     {
@@ -206,12 +149,13 @@ int try_assign(struct field* f,void* value,regexarray* rg)
         f->nxt = NULL;
         f->datatype = typedata (rg, value);
 
-        return assign (f, value, f->datatype);
+        return assign (f, value);
 }
 
 /* turing machine parsing */
 int parse_csv (char* datas, regexarray * rp, struct table** tb)
 {
+    typedef enum { ENDL = '\n', DQUOTE = '\"', OUTQ, INQ } position;
     const unsigned char SIZE = 64;
     uint32_t tsize = 2048;
     struct list** tmp = xmalloc (tsize * sizeof (struct list *));
@@ -248,6 +192,7 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
             continue;
         }
         else if (state == OUTQ && ((c == DELIM) || (c == ENDL)))
+            /* row or field ended */
         {
             *(cell + count) = '\0';
             pf = xtrim (cell);
@@ -259,6 +204,7 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
             free (pf);
 
             if (c == ENDL)
+            /* row ended */
             {
                 if ((*tb)->height > (tsize - 2))
                 {
