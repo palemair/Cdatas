@@ -37,7 +37,6 @@ struct list
 struct table
 {
    struct list **t;
-   struct list *datatype;
    char Dlim;
    bool header;
    uint16_t width;

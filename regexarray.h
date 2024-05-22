@@ -21,4 +21,6 @@ typedef struct
 regexarray *reg_init (void);
 void free_reg (regexarray * rp);
 
+int typedata (regexarray * p, const char *strtest);
+
 #endif

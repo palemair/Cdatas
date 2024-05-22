@@ -2,7 +2,7 @@
 #define _GNU_SOURCE
 #include "csv.h"
 
-int append (struct list** ls, regexarray* rg, void* value)
+int append_value (struct list** ls, regexarray* rg, void* value)
 {
     int Error_assign = -1;
 
@@ -38,40 +38,12 @@ int append (struct list** ls, regexarray* rg, void* value)
     return Error_assign;
 }
 
-int typedata (regexarray * p, const char* strtest)
+int try_assign(struct field* f,void* value,regexarray* rg)
 {
-    if (strtest == NULL)
-    {
-        return (NIL);
-    }
-    else
-    {
-        int match;
-        regex_t* patterns = p->reg_list;
-        int lg = p->lgreg_list;
+        f->nxt = NULL;
+        f->datatype = typedata (rg, value);
 
-        for (int type = 0; type < lg; type++)
-        {
-            match = regexec (&patterns[type], strtest, 0, NULL, 0);
-            if (match == 0)
-            {
-                switch (type)
-                {
-                case 0:
-                    return (LONG);
-                case 1:
-                    return (FLOAT);
-                case 2:
-                    return (TIME);
-                case 3:
-                    return (DATE);
-                case 4:
-                    return (PERCENT);
-                }
-            }
-        }
-        return (STRING);
-    }
+        return assign (f, value);
 }
 
 int assign (struct field* fd, const char* value)
@@ -144,13 +116,6 @@ int assign (struct field* fd, const char* value)
     }
 }
 
-int try_assign(struct field* f,void* value,regexarray* rg)
-{
-        f->nxt = NULL;
-        f->datatype = typedata (rg, value);
-
-        return assign (f, value);
-}
 
 /* turing machine parsing */
 int parse_csv (char* datas, regexarray * rp, struct table** tb)
@@ -196,7 +161,7 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
         {
             *(cell + count) = '\0';
             pf = xtrim (cell);
-            int err = append (curr, rp, pf);
+            int err = append_value (curr, rp, pf);
             if (err == -1)
             {
                 fprintf (stderr, "%s\n", "append error");

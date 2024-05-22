@@ -13,14 +13,11 @@
 #include "table.h"
 #include "regexarray.h"
 #include "xtools.h"
-
-/* globals */
-enum { STRING = 0x00, FLOAT = 0x01, TIME = 0x02, DATE= 0x04, PERCENT= 0x08, LONG=0x10, NIL=0x20 };
+#include "csv_type.h"
 
 /* prototypes */
 
-int append (struct list **ls, regexarray * rg, void *value);
-int typedata (regexarray * p, const char *strtest);
+int append_value (struct list **ls, regexarray * rg, void *value);
 int assign (struct field *fd, const char *value);
 int try_assign(struct field* f,void* value,regexarray* rg);
 

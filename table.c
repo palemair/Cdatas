@@ -21,7 +21,6 @@ struct table* init_table (char delim, bool header)
     struct table* new = xmalloc (sizeof (*new));
 
     new->Dlim = delim;
-    new->datatype = init_list();
     new->header = header;
     new->width = 0;
     new->height = 0;
@@ -56,7 +55,6 @@ void drop_table (struct table* tb)
         free (tb->t[u]);
     }
     free (tb->t);
-    del_list(tb->datatype);
     free (tb);
 }
 
