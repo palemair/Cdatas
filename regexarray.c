@@ -1,16 +1,25 @@
 #define _GNU_SOURCE
 #include "regexarray.h"
 #include "csv_type.h"
+#include "xtools.h"
+
+#define STRLONG "^[-0-9] *+[0-9]* *+$" 
+#define STRFLOA "^[-0-9]+[,\\.][0-9]+$" 
+#define STRTIME "^[0-9]{2} *: *[0-9]{2}|[0-9]{2} *: *[0-9]{2}$"
+#define STRDATE "^[0-9]{2}/[0-9]{2}/[0-9]{2,4}$"
+#define STRPERC "^[-0-9]+[,\\.][0-9]+ *%$" 
+
+/* regex pattern array in order to test type of a string */
 
 regexarray* reg_init (void)
 {
     int err;
     char* patterns[] = {
-        "^[-0-9] *+[0-9]* *+$",      /*long value */
-        "^[-0-9]+[,\\.][0-9]+$",        /*double */
-        "^[0-9]{2} *: *[0-9]{2}|[0-9]{2} *: *[0-9]{2}$",        /*time */
-        "^[0-9]{2}/[0-9]{2}/[0-9]{2,4}$",       /*date */
-        "^[-0-9]+[,\\.][0-9]+ *%$"      /*percent */
+        STRLONG,
+        STRFLOA,
+        STRTIME,
+        STRDATE,
+        STRPERC
     };
     regexarray* regarray = malloc (sizeof (*regarray));
     regarray->lgreg_list = ARRAYSIZE (patterns);
@@ -77,70 +86,86 @@ int typedata (regexarray * p, const char* strtest)
     }
 }
 
-/* void* converter (const char* value, int datatype) */
+void* converter (const char* value, int datatype)
+{
+    int nbconv = 0;
+    switch (datatype)
+    {
+    case LONG:
+        {
+            long* result = xmalloc(sizeof(*result));
+
+            nbconv = sscanf (value, "%ld", result);
+            if (nbconv != 1)
+            {
+                fprintf (stderr, "%s\n", "long conversion fail !!");
+                return NULL;
+            }
+            else
+            {
+                return(result);
+            }
+            break;
+        }
+    case FLOAT:
+    case PERCENT:
+        {
+            double *result = xmalloc(sizeof(*result));
+
+            errno = 0;
+            *result = strtod (value, NULL);
+            if (errno != 0)
+            {
+                perror ("strtod");
+                return NULL;
+            }
+            else
+            {
+                return result;
+            }
+            break;
+        }
+    case TIME:
+    case DATE:
+    case NIL:
+        {
+            return NULL;
+            break;
+        }
+    case STRING:
+        {
+            char* buffer = xmalloc(sizeof(*buffer));
+            strcpy(buffer,value); 
+            return buffer;
+            break;
+        }
+    default:
+        {
+            return NULL;
+            break;
+        }
+    }
+}
+
+
+/* int main(void) */
 /* { */
-/*     int nbconv = 0; */
-/*     switch (datatype) */
-/*     { */
-/*     case LONG: */
-/*         { */
-/*             long* result = xmalloc(sizeof(*result)); */
+/*     regexarray* rg = reg_init(); */
 
-/*             nbconv = sscanf (value, "%ld", result); */
-/*             if (nbconv != 1) */
-/*             { */
-/*                 fprintf (stderr, "%s\n", "long conversion fail !!"); */
-/*                 return NULL; */
-/*             } */
-/*             else */
-/*             { */
-/*                 return(result); */
-/*             } */
-/*             break; */
-/*         } */
-/*     case FLOAT: */
-/*     case PERCENT: */
-/*         { */
-/*             double result = 0.0; */
+/*     char *t = "345.3"; */
+    
+/*     printf("%s : ",t); */
 
-/*             errno = 0; */
-/*             result = strtod (value, NULL); */
-/*             if (errno != 0) */
-/*             { */
-/*                 perror ("strtod"); */
-/*                 return -1; */
-/*             } */
-/*             else */
-/*             { */
-/*                 fd->dbdata = result; */
-/*                 return FLOAT; */
-/*             } */
-/*             break; */
-/*         } */
-/*     case TIME: */
-/*     case DATE: */
-/*     case NIL: */
-/*         { */
-/*             return NULL; */
-/*             break; */
-/*         } */
-/*     case STRING: */
-/*         { */
-/*             if (NULL == (fd->strdata = strdup (value))) */
-/*             { */
-/*                 perror ("strdup"); */
-/*                 return (EXIT_FAILURE); */
-/*             } */
-/*             else */
-/*             { */
-/*                 return STRING; */
-/*             } */
-/*             break; */
-/*         } */
-/*     default: */
-/*         { */
-/*             return NULL; */
-/*             break; */
-/*         } */
-/*     } */
+/*     printf("%d\n",typedata(rg,xtrim(t))); */
+
+/*     double *res; */
+    
+/*     res = converter(t,typedata(rg,xtrim(t))); */
+    
+/*     printf("%lf\n",*res); */
+
+/*     free_reg(rg); */
+
+/*     return 0; */
 /* } */
+

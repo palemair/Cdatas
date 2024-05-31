@@ -1,4 +1,11 @@
 #define _GNU_SOURCE
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "xtools.h"
 
 /* malloc custom to avoid error test */

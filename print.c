@@ -1,4 +1,5 @@
 /* handle a csvfile with C */
+#include "csv_type.h"
 #include "print.h"
 enum { lgstr = 17, lgnumber = 17, lgprecision = 2};
 
@@ -45,6 +46,7 @@ int print(struct table* tb, uint32_t start, uint32_t stop )
 
         while (f)
         {
+            /* printf("Type %d : ", f->datatype); */
             switch (f->datatype)
             {
             case LONG:

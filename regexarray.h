@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <regex.h>
 #include <errno.h>
-#include "xtools.h"
+#include <string.h>
 
 /* regular expression vector */
 typedef struct
@@ -20,7 +20,7 @@ typedef struct
 
 regexarray *reg_init (void);
 void free_reg (regexarray * rp);
-
 int typedata (regexarray * p, const char *strtest);
+void* converter (const char* value, int datatype);
 
 #endif

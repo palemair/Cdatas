@@ -1,6 +1,10 @@
 /* handle a csvfile with C */
 #define _GNU_SOURCE
+#include <string.h>
+#include <time.h>
 #include "csv.h"
+#include "xtools.h"
+#include "csv_type.h"
 
 int append_value (struct list** ls, regexarray* rg, void* value)
 {
@@ -13,7 +17,7 @@ int append_value (struct list** ls, regexarray* rg, void* value)
     else
     {
         struct field* new = xmalloc (sizeof (*new));
-        Error_assign = try_assign (new, value, rg);
+        Error_assign = assign (new, value, rg);
 
         if (Error_assign == -1)
         {
@@ -38,17 +42,12 @@ int append_value (struct list** ls, regexarray* rg, void* value)
     return Error_assign;
 }
 
-int try_assign(struct field* f,void* value,regexarray* rg)
-{
-        f->nxt = NULL;
-        f->datatype = typedata (rg, value);
-
-        return assign (f, value);
-}
-
-int assign (struct field* fd, const char* value)
+int assign (struct field* fd, const char* value,regexarray* rg)
 {
     int nbconv = 0;
+    fd->nxt = NULL;
+    fd->datatype = typedata (rg, value);
+
     switch (fd->datatype)
     {
     case LONG:
@@ -115,7 +114,6 @@ int assign (struct field* fd, const char* value)
         }
     }
 }
-
 
 /* turing machine parsing */
 int parse_csv (char* datas, regexarray * rp, struct table** tb)

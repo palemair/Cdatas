@@ -5,17 +5,6 @@
 
 #define DELSTRING(x) if (x->datatype == 0x00) free (x->strdata)
 
-struct list* init_list (void)
-{
-    struct list* new = xmalloc (sizeof (*new));
-
-    new->len = 0;
-    new->head = NULL;
-    new->tail = NULL;
-
-    return new;
-}
-
 struct table* init_table (char delim, bool header)
 {
     struct table* new = xmalloc (sizeof (*new));
@@ -25,6 +14,28 @@ struct table* init_table (char delim, bool header)
     new->width = 0;
     new->height = 0;
     new->t = NULL;
+
+    return new;
+}
+
+void drop_table (struct table* tb)
+{
+    for (int u = 0; u < (int) tb->height; u++)
+    {
+        del_list (tb->t[u]);
+        free (tb->t[u]);
+    }
+    free (tb->t);
+    free (tb);
+}
+
+struct list* init_list (void)
+{
+    struct list* new = xmalloc (sizeof (*new));
+
+    new->len = 0;
+    new->head = NULL;
+    new->tail = NULL;
 
     return new;
 }
@@ -47,16 +58,6 @@ void del_list (struct list* ls)
     }
 }
 
-void drop_table (struct table* tb)
-{
-    for (int u = 0; u < (int) tb->height; u++)
-    {
-        del_list (tb->t[u]);
-        free (tb->t[u]);
-    }
-    free (tb->t);
-    free (tb);
-}
 
 void pop (struct list** ls)
 {
@@ -160,8 +161,6 @@ void del_field_by_index (struct list** ls, uint16_t index)
 
             if (test)
             {
-                fd = (*ls)->head;
-
                 while (index > 0)
                 {
                     index--;

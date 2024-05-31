@@ -1,7 +1,9 @@
 /* Handle a csvfile with C */
 #define _GNU_SOURCE
+#include <time.h>
 #include "csv.h"
 #include "print.h"
+#include "xtools.h"
 
 /* struct table* transpose(struct table*tb) */
 /* { */
@@ -12,13 +14,13 @@
 int main ()
 {
     START;
-    struct table* tb = load_csv ("CSV-file/xaa", ',', true);
+    struct table* tb = load_csv ("CSV-file/technic.csv", ',', false);
     STOP;
     
-    printall(tb);
+    head(tb);
 
     drop_table (tb);
-
+    
     TPS ("load_csv");
     return EXIT_SUCCESS;
 }
