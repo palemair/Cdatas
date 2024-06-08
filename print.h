@@ -3,6 +3,7 @@
 #define PRINT
 
 #include "csv.h"
+#include "regexarray.h"
 
 int print(struct table* tb, uint32_t start, uint32_t stop);
 int printall(struct table* tb);

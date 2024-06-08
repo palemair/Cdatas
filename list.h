@@ -1,33 +1,50 @@
-/* handle a csvfile with C */
-#include <stdint.h>
+/* header for csv_tools */
 
+#ifndef LIST
+#define LIST
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "regexarray.h"
+
+/* MACROS */
+#define DELSTRING(x) if (x->datatype == 0x00) free (x->strdata)
+
+/* STRUCTURES */
+/* ~~~~~~~~~~~*/
+/* simple csv field */
 struct field
 {
-    int value;
-    struct field* nxt;
-    struct field* prv;
+   uint8_t datatype;
+   union
+   {
+      long lgdata;
+      double dbdata;
+      char *strdata;
+   };
+   struct field *nxt;
+   struct field *prv;
 };
 
+/* linked list for row */
 struct list
 {
-    uint16_t len;
-    struct field* head;
-    struct field* tail;
+   uint16_t len;
+   struct field *head;
+   struct field *tail;
 };
 
-struct list* init_list (void);
-void drop_list (struct list* ls);
+/* prototypes */
+int assign (struct field* fd, const char* value,regexarray* rg);
 
-
-int append (struct list** ls, int v);
-int appendleft (struct list** ls, int v);
-
-int print (struct list* ls);
-void pop (struct list** ls);
-void popleft (struct list** ls);
-
+struct list *init_list (void);
+int append_value (struct list** ls, regexarray* rg, void* value);
+void del_list (struct list* ls);
+void del_field_by_index (struct list** ls, uint16_t index);
 bool is_start_head (struct list** ls, uint16_t index);
+void popleft (struct list** ls);
+void pop (struct list** ls);
 
-void del_by_index (struct list** ls, uint16_t index);
-void insert_by_index (struct list** ls, uint16_t index, int value);
-
+#endif
