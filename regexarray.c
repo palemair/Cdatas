@@ -1,6 +1,5 @@
 #define _GNU_SOURCE
 #include "regexarray.h"
-#include "csv_type.h"
 #include "xtools.h"
 
 #define STRLONG "^[-0-9] *+[0-9]* *+$" 
@@ -88,15 +87,15 @@ int typedata (regexarray * p, const char* strtest)
 
 void* converter (const char* value, int datatype)
 {
-    int nbconv = 0;
     switch (datatype)
     {
     case LONG:
         {
             long* result = xmalloc(sizeof(*result));
 
-            nbconv = sscanf (value, "%ld", result);
-            if (nbconv != 1)
+            char * endPtr;
+            *result = strtol(value, &endPtr, 10 );
+            if (value == endPtr)
             {
                 fprintf (stderr, "%s\n", "long conversion fail !!");
                 return NULL;
@@ -134,9 +133,9 @@ void* converter (const char* value, int datatype)
         }
     case STRING:
         {
-            char* buffer = xmalloc(sizeof(*buffer));
-            strcpy(buffer,value); 
-            return buffer;
+            char *pt = xmalloc(sizeof(*pt));
+            strcpy(pt,value);
+            return pt;
             break;
         }
     default:

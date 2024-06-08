@@ -1,6 +1,6 @@
 /* handle a csvfile with C */
-#include "csv_type.h"
 #include "print.h"
+
 enum { lgstr = 17, lgnumber = 17, lgprecision = 2};
 
 /* int first(struct table* tb) */
@@ -13,15 +13,13 @@ enum { lgstr = 17, lgnumber = 17, lgprecision = 2};
 int print(struct table* tb, uint32_t start, uint32_t stop )
 {
     const char *err = "table too short !!";
+
     if(start > tb->height)
     {
         fprintf(stderr,"%s\n",err);
         return EXIT_FAILURE;
     }
-    if(stop > tb->height)
-    {
-        stop = tb->height;
-    }
+    stop = (stop > tb->height)?tb->height:stop;
 
     struct list** tmp = NULL;
     struct field* f;
@@ -31,7 +29,7 @@ int print(struct table* tb, uint32_t start, uint32_t stop )
         struct field* fd = tb->t[0]->head;
         while(fd)
         {
-            printf("%*s ",lgstr,fd->strdata);
+            printf("%*s",lgstr,fd->strdata);
             fd = fd->nxt;
         }
         printf("\n");
@@ -51,23 +49,23 @@ int print(struct table* tb, uint32_t start, uint32_t stop )
             {
             case LONG:
                 {
-                    printf ("%*ld ",lgnumber,f->lgdata);
+                    printf ("%*ld",lgnumber,f->lgdata);
                     break;
                 }
 
             case FLOAT:
                 {
-                    printf ("%*.*f ",lgnumber,lgprecision,f->dbdata);
+                    printf ("%*.*f",lgnumber,lgprecision,f->dbdata);
                     break;
                 }
             case NIL:
                 {
-                    printf ("%*.*s ",lgstr,lgstr,"-*-");
+                    printf ("%*.*s",lgstr,lgstr,"-*-");
                     break;
                 }
             case STRING:
                 {
-                    printf ("%-*.*s ",lgstr,lgstr,f->strdata);
+                    printf ("%-*.*s",lgstr,lgstr,f->strdata);
                     break;
                 }
             }
@@ -92,8 +90,7 @@ int head(struct table* tb)
 
 int tail(struct table* tb)
 {
-    size_t start = (tb->height) - 10;
-    (tb->height>10)? print(tb,start,tb->height):print(tb,0,tb->height);
+    (tb->height>10)? print(tb,(tb->height)-10,tb->height):print(tb,0,tb->height);
     return EXIT_SUCCESS;
 }
 

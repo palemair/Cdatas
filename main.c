@@ -14,10 +14,11 @@
 int main ()
 {
     START;
-    struct table* tb = load_csv ("CSV-file/technic.csv", ',', false);
+    struct table* tb = load_csv ("CSV-file/xxx", ',', true);
     STOP;
     
-    head(tb);
+    printall(tb);
+    /* tail(tb); */
 
     drop_table (tb);
     

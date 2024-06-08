@@ -1,4 +1,4 @@
-#define _GNU_SOURCE
+/* #define _GNU_SOURCE */
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -27,7 +27,7 @@ void* xmalloc (size_t size)
 /* realloc custom to avoid error test */
 void* xreallocarray (void* ptr, size_t nmemb, size_t size)
 {
-    void* value = reallocarray (ptr, nmemb , size);
+    void* value = realloc (ptr, nmemb * size);
 
     if (value == 0)
     {
