@@ -1,4 +1,6 @@
 /* handle a csvfile with C */
+#include <ctype.h>
+#include "xtools.h"
 #include "print.h"
 
 enum { lgstr = 17, lgnumber = 17, lgprecision = 2};
@@ -29,7 +31,7 @@ int print(struct table* tb, uint32_t start, uint32_t stop )
         struct field* fd = tb->t[0]->head;
         while(fd)
         {
-            printf("%*s",lgstr,fd->strdata);
+            printf("%*s",lgstr,strtoupper(fd->strdata));
             fd = fd->nxt;
         }
         printf("\n");

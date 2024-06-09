@@ -116,3 +116,16 @@ char* xreadfile (char* filename)
         return NULL;
     }
 }
+
+char* strtoupper(const char* src)
+{
+    char* copy = xmalloc(strlen(src) + 1);
+    strcpy(copy,src);
+    char* pt = copy;
+    char* res = xmalloc(strlen(src) + 1);
+    char* result = res;
+    
+    while((*res++ = toupper(*pt++)));
+    free(copy);
+    return(result);
+}
