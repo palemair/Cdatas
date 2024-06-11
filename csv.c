@@ -59,18 +59,34 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
             if (c == ENDL)
             /* row ended */
             {
-                if ((*tb)->height > (tsize - 2))
+                struct list* tmplist = *curr;
+                struct field* tmpfd = tmplist->head;
+                bool nilrow = true;
+                while(tmpfd)
                 {
-                    tsize <<= 1;
-                    tmp = xreallocarray (tmp, tsize, sizeof (struct list *));
-                    curr = (tmp + (*tb)->height + 1);
+                    nilrow = (tmpfd->datatype != NIL)?false:true;
+                    tmpfd=tmpfd->nxt;
+                }
+
+                if(nilrow == false)
+                {
+                    if ((*tb)->height > (tsize - 2))
+                    {
+                        tsize <<= 1;
+                        tmp = xreallocarray (tmp, tsize, sizeof (struct list *));
+                        curr = (tmp + (*tb)->height + 1);
+                    }
+                    else
+                    {
+                        curr++;
+                    }
+                *curr = init_list ();
+                (*tb)->height++;
                 }
                 else
                 {
-                    curr++;
+                    del_list(tmplist);
                 }
-            *curr = init_list ();
-            (*tb)->height++;
             }
             count = 0;
             memset (cell, 0, nb * SIZE);

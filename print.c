@@ -3,14 +3,7 @@
 #include "xtools.h"
 #include "print.h"
 
-enum { lgstr = 17, lgnumber = 17, lgprecision = 2};
-
-/* int first(struct table* tb) */
-/* { */
-/*     struct list* tmp = tb->t[0]; */
-
-/*     return 0; */
-/* } */
+enum { lgstr = 25, lgnumber = 10, lgprecision = 2};
 
 int print(struct table* tb, uint32_t start, uint32_t stop )
 {
@@ -29,14 +22,33 @@ int print(struct table* tb, uint32_t start, uint32_t stop )
     if(tb->header)
     {
         struct field* fd = tb->t[0]->head;
+        struct field* fd1 = tb->t[1]->head;
+        printf("%6s - ","*");
         while(fd)
         {
-            printf("%*s",lgstr,strtoupper(fd->strdata));
+            int lg;
+            switch(fd1->datatype)
+            {
+                case STRING:
+                    {
+                        lg = lgstr;
+                        break;
+                    }
+                    
+                default:
+                    {
+                        lg = lgnumber;
+                        break;
+                    }
+            }
+            char* buff = strtoupper(fd->strdata);
+            printf(" %*s",lg,buff);
+            free(buff);
+            fd1 = fd1->nxt;
             fd = fd->nxt;
         }
         printf("\n");
-        start++;
-
+        if(start == 0) start++;
     }    
 
     tmp = tb->t + start;
@@ -44,6 +56,7 @@ int print(struct table* tb, uint32_t start, uint32_t stop )
     {
         f = (*tmp++)->head;
 
+        printf("%6u - ",u);
         while (f)
         {
             /* printf("Type %d : ", f->datatype); */
@@ -51,23 +64,23 @@ int print(struct table* tb, uint32_t start, uint32_t stop )
             {
             case LONG:
                 {
-                    printf ("%*ld",lgnumber,f->lgdata);
+                    printf (" %*ld",lgnumber,f->lgdata);
                     break;
                 }
 
             case FLOAT:
                 {
-                    printf ("%*.*f",lgnumber,lgprecision,f->dbdata);
+                    printf (" %*.*f",lgnumber,lgprecision,f->dbdata);
                     break;
                 }
             case NIL:
                 {
-                    printf ("%*.*s",lgstr,lgstr,"-*-");
+                    printf (" %*.*s",lgstr,lgstr,"-*-");
                     break;
                 }
             case STRING:
                 {
-                    printf ("%-*.*s",lgstr,lgstr,f->strdata);
+                    printf (" %-*.*s",lgstr,lgstr,f->strdata);
                     break;
                 }
             }

@@ -1,4 +1,5 @@
 /* #define _GNU_SOURCE */
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -40,15 +41,13 @@ void* xreallocarray (void* ptr, size_t nmemb, size_t size)
 /* delete left and right space char + double quotes in a char string */
 char* xtrim (const char* raw)
 {
-    size_t lg = strlen(raw) + 1;
-    char rawfield[lg];
-    memcpy(rawfield,raw,lg);
+    char* rawfield = strdupa(raw);
     char* begin = rawfield;
-    char* end = strrchr (begin, '\0');
+    char* end = rawmemchr (begin, '\0');
 
     if (end == NULL)
     {
-        perror ("strrchr failed, not à correct stringi !!");
+        perror ("rawmemchr failed, not à correct string !!");
         return NULL;
     }
 
@@ -119,13 +118,11 @@ char* xreadfile (char* filename)
 
 char* strtoupper(const char* src)
 {
-    char* copy = xmalloc(strlen(src) + 1);
-    strcpy(copy,src);
+    char* copy = strdupa(src);
     char* pt = copy;
     char* res = xmalloc(strlen(src) + 1);
     char* result = res;
     
     while((*res++ = toupper(*pt++)));
-    free(copy);
     return(result);
 }

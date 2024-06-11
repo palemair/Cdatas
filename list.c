@@ -1,9 +1,10 @@
 /* handle a csvfile with C */
-/* #define _GNU_SOURCE */
+#define _GNU_SOURCE
+#include <errno.h>
 #include "list.h"
 #include "xtools.h"
 
-int assign (struct field* fd, const char* value,regexarray* rg)
+int assign (struct field* fd, char* value,regexarray* rg)
 {
     fd->nxt = NULL;
     fd->datatype = typedata (rg, value);
@@ -12,23 +13,39 @@ int assign (struct field* fd, const char* value,regexarray* rg)
     {
     case LONG:
         {
-           long* result = converter(value,LONG);
-           fd->lgdata = *result;
+            long result = 0; 
+
+            char * endPtr;
+            result = strtol(value, &endPtr, 10 );
+            if (value == endPtr)
+            {
+                fprintf (stderr, "%s\n", "long conversion fail !!");
+                return -1;
+            }
+            else
+            {
+                fd->lgdata = result;
+            }
            return LONG;
            break;
         }
     case FLOAT:
-        {
-           double* result = converter(value,FLOAT);
-           fd->dbdata = *result;
-           return FLOAT;
-           break;
-        }
     case PERCENT:
         {
-           double* result = converter(value,PERCENT);
-           fd->dbdata = *result;
-           return PERCENT;
+           errno = 0;
+           double result;
+           result = strtod (value, NULL);
+
+           if (errno != 0)
+           {
+               perror ("strtod");
+               return -1;
+           }
+           else
+           {
+               fd->dbdata = result;
+           }
+           return FLOAT;
            break;
         }
     case TIME:
@@ -41,18 +58,8 @@ int assign (struct field* fd, const char* value,regexarray* rg)
         }
     case STRING:
         {
-            char* p = xmalloc(strlen(value) + 1);
-            if (NULL == p )
-            {
-                perror ("strdup");
-                return (EXIT_FAILURE);
-            }
-            else
-            {
-                strcpy(p,value);
-                fd->strdata = p;
-                return STRING;
-            }
+            fd->strdata = strdup(value);
+            return STRING;
             break;
         }
     default:
@@ -125,6 +132,7 @@ void del_list (struct list* ls)
         }
         ls->head = NULL;
         ls->tail = NULL;
+        ls->len = 0;
     }
 }
 

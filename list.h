@@ -37,7 +37,7 @@ struct list
 };
 
 /* prototypes */
-int assign (struct field* fd, const char* value,regexarray* rg);
+int assign (struct field* fd, char* value,regexarray* rg);
 
 struct list *init_list (void);
 int append_value (struct list** ls, regexarray* rg, void* value);
