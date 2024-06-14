@@ -4,7 +4,7 @@
 #include "list.h"
 #include "xtools.h"
 
-int assign (struct field* fd, char* value,regexarray* rg)
+int set_value (struct field* fd, char* value,regexarray* rg)
 {
     fd->nxt = NULL;
     fd->datatype = typedata (rg, value);
@@ -70,6 +70,12 @@ int assign (struct field* fd, char* value,regexarray* rg)
     }
 }
 
+int clear_value (struct field* fd)
+{
+    if (fd->datatype == STRING) free (fd->strdata);
+    return 0;
+}
+
 struct list* init_list (void)
 {
     struct list* new = xmalloc (sizeof (*new));
@@ -81,7 +87,7 @@ struct list* init_list (void)
     return new;
 }
 
-int append_value (struct list** ls, regexarray* rg, void* value)
+int append (struct list** ls, regexarray* rg, void* value)
 {
     int Error_assign = -1;
 
@@ -92,7 +98,7 @@ int append_value (struct list** ls, regexarray* rg, void* value)
     else
     {
         struct field* new = xmalloc (sizeof (*new));
-        Error_assign = assign (new, value, rg);
+        Error_assign = set_value (new, value, rg);
 
         if (Error_assign == -1)
         {
@@ -115,25 +121,6 @@ int append_value (struct list** ls, regexarray* rg, void* value)
         (*ls)->len++;
     }
     return Error_assign;
-}
-
-void del_list (struct list* ls)
-{
-    if(ls !=NULL)
-    {
-        struct field* tmp;
-        struct field* pfd = ls->head;
-        while (pfd)
-        {
-            tmp = pfd;
-            DELSTRING(tmp);
-            pfd = pfd->nxt;
-            free (tmp);
-        }
-        ls->head = NULL;
-        ls->tail = NULL;
-        ls->len = 0;
-    }
 }
 
 void pop (struct list** ls)
@@ -159,7 +146,7 @@ void pop (struct list** ls)
                 (*ls)->len--;
 
             }
-            DELSTRING(tmp);
+            clear_value(tmp);
             free (tmp);
         }
         else
@@ -196,13 +183,32 @@ void popleft (struct list** ls)
                 (*ls)->head = fd;
                 (*ls)->len--;
             }
-            DELSTRING(tmp);
+            clear_value(tmp);
             free (tmp);
         }
         else
         {
             fprintf (stderr, "%s\n", "list empty !");
         }
+    }
+}
+
+void del_list (struct list* ls)
+{
+    if(ls !=NULL)
+    {
+        struct field* tmp;
+        struct field* pfd = ls->head;
+        while (pfd)
+        {
+            tmp = pfd;
+            clear_value(tmp);
+            pfd = pfd->nxt;
+            free (tmp);
+        }
+        ls->head = NULL;
+        ls->tail = NULL;
+        ls->len = 0;
     }
 }
 
@@ -261,7 +267,7 @@ void del_field_by_index (struct list** ls, uint16_t index)
 
             before->nxt = after;
             after->prv = before;
-            DELSTRING(fd);
+            clear_value(fd);
             free (fd);
             (*ls)->len--;
         }

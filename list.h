@@ -9,9 +9,6 @@
 #include <stdbool.h>
 #include "regexarray.h"
 
-/* MACROS */
-#define DELSTRING(x) if (x->datatype == 0x00) free (x->strdata)
-
 /* STRUCTURES */
 /* ~~~~~~~~~~~*/
 /* simple csv field */
@@ -37,14 +34,15 @@ struct list
 };
 
 /* prototypes */
-int assign (struct field* fd, char* value,regexarray* rg);
+int set_value (struct field* fd, char* value,regexarray* rg);
+int clear_value (struct field* fd);
 
 struct list *init_list (void);
-int append_value (struct list** ls, regexarray* rg, void* value);
+int append(struct list** ls, regexarray* rg, void* value);
+void pop (struct list** ls);
+void popleft (struct list** ls);
 void del_list (struct list* ls);
 void del_field_by_index (struct list** ls, uint16_t index);
 bool is_start_head (struct list** ls, uint16_t index);
-void popleft (struct list** ls);
-void pop (struct list** ls);
 
 #endif

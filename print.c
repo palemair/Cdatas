@@ -56,7 +56,7 @@ int print(struct table* tb, uint32_t start, uint32_t stop )
     {
         f = (*tmp++)->head;
 
-        printf("%6u - ",u);
+        printf("%06u - ",u);
         while (f)
         {
             /* printf("Type %d : ", f->datatype); */
