@@ -4,14 +4,14 @@ typedef struct Listiter
 {
     struct list *ls; //list
     struct field *curr; //current field
-    int pos;           //
+    int pos;           
 } *listiter;
 
 typedef struct Tabiter
 {
     struct table *tb; //table
     struct list *curr; //current list
-    int pos;           //
+    int pos;          
 } *tabiter;
 
 extern void init_listiter(listiter, struct list *);

@@ -31,3 +31,5 @@ csv.o: csv.c
 
 clean:
 	rm -rf *.o
+	rm $(EXEC)
+	rm a.out
