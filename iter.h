@@ -1,10 +1,13 @@
+#ifndef _ITER
+#define _ITER
+
 #include "table.h"
 
 typedef struct Listiter
 {
     struct list *ls; //list
     struct field *curr; //current field
-    int pos;           
+    int pos;
 } *listiter;
 
 typedef struct Tabiter
@@ -18,3 +21,7 @@ extern void init_listiter(listiter, struct list *);
 extern void init_tabiter(tabiter, struct table *);
 extern bool next_field(listiter);
 extern bool next_list(tabiter);
+void print_field(struct field* fd,int lgnumber,int lgstr);
+void clear_field (struct field* fd);
+int set_field(struct field *fd, char* value, regexarray *rg);
+#endif

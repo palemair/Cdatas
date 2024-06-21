@@ -5,7 +5,6 @@
 
 #include <stdbool.h>
 #include "table.h"
-#include "regexarray.h"
 
 /* prototypes */
 struct table* load_csv (char *filename, char delim, bool header);

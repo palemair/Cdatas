@@ -2,78 +2,21 @@
 #define _GNU_SOURCE
 #include <errno.h>
 #include "list.h"
+#include "iter.h"
 #include "xtools.h"
 
 int set_value (struct field* fd, char* value,regexarray* rg)
 {
     fd->nxt = NULL;
-    fd->datatype = typedata (rg, value);
-
-    switch (fd->datatype)
+    int ret = set_field(fd,value,rg);
+    if(ret == -1)
     {
-    case LONG:
-        {
-            long result = 0; 
-
-            char * endPtr;
-            result = strtol(value, &endPtr, 10 );
-            if (value == endPtr)
-            {
-                fprintf (stderr, "%s\n", "long conversion fail !!");
-                return -1;
-            }
-            else
-            {
-                fd->lgdata = result;
-            }
-           return LONG;
-           break;
-        }
-    case FLOAT:
-    case PERCENT:
-        {
-           errno = 0;
-           double result;
-           result = strtod (value, NULL);
-
-           if (errno != 0)
-           {
-               perror ("strtod");
-               return -1;
-           }
-           else
-           {
-               fd->dbdata = result;
-           }
-           return FLOAT;
-           break;
-        }
-    case TIME:
-    case DATE:
-    case NIL:
-        {
-            fd->strdata = NULL;
-            return NIL;
-            break;
-        }
-    case STRING:
-        {
-            fd->strdata = strdup(value);
-            return STRING;
-            break;
-        }
-    default:
-        {
-            return -1;
-            break;
-        }
+        return 0;
     }
-}
-
-int clear_value (struct field* fd)
-{
-    if (fd->datatype == STRING) free (fd->strdata);
-    return 0;
+    else
+    {
+        return 1;
+    }
 }
 
 struct list* init_list (void)
@@ -89,8 +32,6 @@ struct list* init_list (void)
 
 int append (struct list** ls, regexarray* rg, void* value)
 {
-    int Error_assign = -1;
-
     if (*ls == NULL)
     {
         fprintf (stderr, "%s\n", "Init struct list first !!");
@@ -98,9 +39,9 @@ int append (struct list** ls, regexarray* rg, void* value)
     else
     {
         struct field* new = xmalloc (sizeof (*new));
-        Error_assign = set_value (new, value, rg);
+        int Error_assign = set_value (new, value, rg);
 
-        if (Error_assign == -1)
+        if (!Error_assign)
         {
             fprintf (stderr, "%s\n", "assignement error !!");
             return Error_assign;
@@ -120,7 +61,7 @@ int append (struct list** ls, regexarray* rg, void* value)
         }
         (*ls)->len++;
     }
-    return Error_assign;
+    return 1;
 }
 
 void pop (struct list** ls)
@@ -146,7 +87,7 @@ void pop (struct list** ls)
                 (*ls)->len--;
 
             }
-            clear_value(tmp);
+            clear_field(tmp);
             free (tmp);
         }
         else
@@ -183,7 +124,7 @@ void popleft (struct list** ls)
                 (*ls)->head = fd;
                 (*ls)->len--;
             }
-            clear_value(tmp);
+            clear_field(tmp);
             free (tmp);
         }
         else
@@ -202,7 +143,7 @@ void del_list (struct list* ls)
         while (pfd)
         {
             tmp = pfd;
-            clear_value(tmp);
+            clear_field(tmp);
             pfd = pfd->nxt;
             free (tmp);
         }
@@ -267,7 +208,7 @@ void del_field_by_index (struct list** ls, uint16_t index)
 
             before->nxt = after;
             after->prv = before;
-            clear_value(fd);
+            clear_field(fd);
             free (fd);
             (*ls)->len--;
         }

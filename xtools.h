@@ -5,6 +5,8 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
+#include <ctype.h>
 
 /* Macros */
 #define START clock_t end,start = clock()

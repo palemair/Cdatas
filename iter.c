@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "xtools.h"
 #include "iter.h"
 
@@ -35,7 +36,7 @@ bool next_field(listiter il)
         }
         else
         {
-            (void)fprintf(stderr,"%s\n","End of list !!");
+            /* (void)fprintf(stderr,"%s\n","End of list !!"); */
             return false;
         }
     }
@@ -52,7 +53,7 @@ bool next_list(tabiter itb)
 
     else 
     {
-        if(itb->pos < itb->tb->height -1)
+        if(itb->pos < (int)itb->tb->height -1)
         {
             itb->pos++;
             itb->curr = itb->tb->t[itb->pos];
@@ -60,8 +61,107 @@ bool next_list(tabiter itb)
         }
         else
         {
-            (void)fprintf(stderr,"%s\n","End of tab !!");
+            /* (void)fprintf(stderr,"%s\n","End of tab !!"); */
             return false;
         }
+    }
+}
+
+int set_field(struct field *fd, char* value, regexarray *rg)
+{
+    fd->datatype = typedata (rg, value);
+    switch (fd->datatype)
+    {
+    case LONG:
+        {
+            long result = 0; 
+
+            char * endPtr;
+            result = strtol(value, &endPtr, 10 );
+            if (value == endPtr)
+            {
+                fprintf (stderr, "%s\n", "long conversion fail !!");
+                return -1;
+            }
+            else
+            {
+                fd->lgdata = result;
+            }
+           return LONG;
+           break;
+        }
+    case FLOAT:
+    case PERCENT:
+        {
+           errno = 0;
+           double result;
+           result = strtod (value, NULL);
+
+           if (errno != 0)
+           {
+               perror ("strtod");
+               return -1;
+           }
+           else
+           {
+               fd->dbdata = result;
+           }
+           return FLOAT;
+           break;
+        }
+    case TIME:
+    case DATE:
+    case NIL:
+        {
+            fd->strdata = NULL;
+            return NIL;
+            break;
+        }
+    case STRING:
+        {
+            fd->strdata = strdup(value);
+            return STRING;
+            break;
+        }
+    default:
+        {
+            return -1;
+            break;
+        }
+    }
+}
+
+void clear_field (struct field* fd)
+{
+    if (fd->datatype == STRING) free (fd->strdata);
+    fd->datatype = NIL;
+    fd->strdata = NULL;
+}
+
+void print_field(struct field* fd,int lgnumber,int lgstr)
+{
+    switch (fd->datatype)
+    {
+        case LONG:
+                {
+                    printf (" %*ld",lgnumber,fd->lgdata);
+                    break;
+                }
+
+        case FLOAT:
+                {
+                    printf (" %*f",lgnumber,fd->dbdata);
+                    break;
+                }
+        case NIL:
+                {
+                    printf (" %*.*s",lgstr,lgstr,"-*-");
+                    break;
+                }
+        case STRING:
+                {
+                    printf (" %-*.*s",lgstr,lgstr,fd->strdata);
+                    break;
+                }
     }
 }

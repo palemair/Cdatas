@@ -50,7 +50,7 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
             *(cell + count) = '\0';
             pf = xtrim (cell);
             int err = append (curr, rp, pf);
-            if (err == -1)
+            if (!err)
             {
                 fprintf (stderr, "%s\n", "append error");
             }

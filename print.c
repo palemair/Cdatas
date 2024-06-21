@@ -1,6 +1,7 @@
 /* handle a csvfile with C */
 #include <ctype.h>
 #include "xtools.h"
+#include "iter.h"
 #include "print.h"
 
 enum { lgstr = 25, lgnumber = 10, lgprecision = 2};
