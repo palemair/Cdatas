@@ -5,7 +5,7 @@ EXEC=cdatas
 
 all: $(EXEC)
 
-cdatas: main.o csv.o print.o table.o list.o iter.o regexarray.o xtools.o
+cdatas: main.o csv.o table.o list.o iter.o regexarray.o xtools.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 main.o: main.c
@@ -23,9 +23,6 @@ list.o: list.c
 table.o: table.c
 	$(CC) -c $^ $(CFLAGS)
 
-print.o: print.c
-	$(CC) -c $^ $(CFLAGS)
-
 csv.o: csv.c
 	$(CC) -c $^ $(CFLAGS)
 
@@ -35,4 +32,3 @@ iter.o: iter.c
 clean:
 	rm -rf *.o
 	rm $(EXEC)
-	rm a.out

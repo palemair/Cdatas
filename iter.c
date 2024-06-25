@@ -46,7 +46,15 @@ bool next_list(tabiter itb)
 {
     if((itb->curr == NULL) && (itb->pos == -1))
     {
-       itb->curr = itb->tb->t[0];
+       if(itb->tb->header)
+       {
+           itb->curr = itb->tb->t[1];
+           itb->pos++;
+       }
+       else
+       {
+           itb->curr = itb->tb->t[0];
+       }
        itb->pos++;
        return true;
     }
@@ -138,30 +146,35 @@ void clear_field (struct field* fd)
     fd->strdata = NULL;
 }
 
-void print_field(struct field* fd,int lgnumber,int lgstr)
+void fprint_field(struct field* fd,FILE* outputfile,int lgnumber,int lgstr, int lgprecision)
 {
     switch (fd->datatype)
     {
         case LONG:
                 {
-                    printf (" %*ld",lgnumber,fd->lgdata);
+                    fprintf (outputfile,"%*ld",lgnumber,fd->lgdata);
                     break;
                 }
 
         case FLOAT:
                 {
-                    printf (" %*f",lgnumber,fd->dbdata);
+                    fprintf (outputfile,"%*.*f",lgnumber,lgprecision,fd->dbdata);
                     break;
                 }
         case NIL:
                 {
-                    printf (" %*.*s",lgstr,lgstr,"-*-");
+                    fprintf (outputfile,"%-*.*s",lgstr,lgstr,"---");
                     break;
                 }
         case STRING:
                 {
-                    printf (" %-*.*s",lgstr,lgstr,fd->strdata);
+                    fprintf (outputfile,"%-*.*s",lgstr,lgstr,fd->strdata);
                     break;
                 }
     }
+}
+
+void print_field(struct field* fd,int lgnumber,int lgstr, int lgprecision)
+{
+    fprint_field(fd,stdout,lgnumber,lgstr,lgprecision);
 }

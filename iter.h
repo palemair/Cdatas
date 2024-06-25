@@ -17,11 +17,13 @@ typedef struct Tabiter
     int pos;          
 } *tabiter;
 
-extern void init_listiter(listiter, struct list *);
-extern void init_tabiter(tabiter, struct table *);
-extern bool next_field(listiter);
-extern bool next_list(tabiter);
-void print_field(struct field* fd,int lgnumber,int lgstr);
+void init_listiter(listiter, struct list *);
+void init_tabiter(tabiter, struct table *);
+bool next_field(listiter);
+bool next_list(tabiter);
+void fprint_field(struct field* fd,FILE* outputfile,int lgnumber,int lgstr, int lgprecision);
+void print_field(struct field* fd,int lgnumber,int lgstr,int lgprecision);
 void clear_field (struct field* fd);
 int set_field(struct field *fd, char* value, regexarray *rg);
+
 #endif

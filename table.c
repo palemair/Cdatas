@@ -1,7 +1,10 @@
 /* handle a csvfile with C */
 /* #define _GNU_SOURCE */
 #include "table.h"
+#include "iter.h"
 #include "xtools.h"
+
+enum { lgstr = 25, lgnumber = 10, lgprecision = 2};
 
 struct table* init_table (char delim, bool header)
 {
@@ -12,6 +15,10 @@ struct table* init_table (char delim, bool header)
     new->width = 0;
     new->height = 0;
     new->t = NULL;
+    new->fmtnum = lgnumber;
+    new->fmtstr = 2.5 * lgnumber;
+    new->fmtprecis = lgprecision;
+    new->first = NULL;
 
     return new;
 }

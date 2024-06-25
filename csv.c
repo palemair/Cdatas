@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include "csv.h"
+#include "iter.h"
 #include "xtools.h"
 
 /* turing machine parsing */
@@ -101,6 +102,11 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
     (*tb)->t = tmp;
     (*tb)->width = (*tb)->t[0]->len;
 
+    if(((*tb)->header == true) && (*tb)->height>0)
+    {
+        (*tb)->first = (*tb)->t[0];
+    }
+
     return (EXIT_SUCCESS);
 }
 
@@ -125,4 +131,42 @@ struct table* load_csv (char* filename, char delim, bool header)
     free (buffer);
 
     return tb;
+}
+
+
+int write_csv (char* filename, struct table *tb)
+{
+    FILE* outfile = fopen(filename,"w");
+    if(outfile == NULL)
+    {
+        perror("fopen");
+        return -1;
+    }
+    listiter il = xmalloc(sizeof(*il)); 
+    int just = 0;
+    for(size_t i=0; i<tb->height; i++)
+    {
+        init_listiter(il, tb->t[i]);
+        while(next_field(il)) 
+            {
+                if(il->curr->datatype == STRING) 
+                {
+                    just = strlen(il->curr->strdata);
+                    fputc('"',outfile);
+                    fprint_field(il->curr,outfile,0,just,6);
+                    fputc('"',outfile);
+                    fprintf(outfile,"%c",tb->Dlim);
+                }
+                else
+                {
+                    fprint_field(il->curr,outfile,0,just,6);
+                    fprintf(outfile,"%c",tb->Dlim);
+                }
+            }
+            fprintf(outfile,"\n");
+    }
+    free(il);
+    fclose(outfile);
+
+    return 0;
 }
