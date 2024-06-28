@@ -12,17 +12,22 @@ int main ()
     
     START;
     
-    listiter il = xmalloc(sizeof(*il));
-    unsigned int i = 0;
-    while(i<tb->height)
-    {
-        init_listiter(il, tb->t[i]);
-        while(next_field(il)) print_field(il->curr,tb->fmtnum,tb->fmtstr,tb->fmtprecis);
-        printf("\n");
-        i++;
-    }
+    /* print_header(tb); */
+    printall(tb);
+    head(tb);
+    tail(tb);
 
-    free(il);
+    /* listiter il = xmalloc(sizeof(*il)); */
+    /* unsigned int i = 1; */
+    /* while(i<tb->height) */
+    /* { */
+    /*     init_listiter(il, tb->t[i]); */
+    /*     while(next_field(il)) print_field(il->curr,tb->fmtnum,tb->fmtstr,tb->fmtprecis); */
+    /*     printf("\n"); */
+    /*     i++; */
+    /* } */
+
+    /* free(il); */
     STOP;
     
     (void)write_csv("testw.csv",tb);

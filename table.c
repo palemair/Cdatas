@@ -4,8 +4,6 @@
 #include "iter.h"
 #include "xtools.h"
 
-enum { lgstr = 25, lgnumber = 10, lgprecision = 2};
-
 struct table* init_table (char delim, bool header)
 {
     struct table* new = xmalloc (sizeof (*new));
@@ -15,9 +13,9 @@ struct table* init_table (char delim, bool header)
     new->width = 0;
     new->height = 0;
     new->t = NULL;
-    new->fmtnum = lgnumber;
-    new->fmtstr = 2.5 * lgnumber;
-    new->fmtprecis = lgprecision;
+    new->fmtnum = 10;
+    new->fmtstr = 2.5 * new->fmtnum;
+    new->fmtprecis = 2;
     new->first = NULL;
 
     return new;

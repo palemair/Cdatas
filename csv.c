@@ -168,5 +168,5 @@ int write_csv (char* filename, struct table *tb)
     free(il);
     fclose(outfile);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
