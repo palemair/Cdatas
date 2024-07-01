@@ -7,7 +7,7 @@
 int print_header(struct table *tb)
 {
     listiter il = xmalloc(sizeof(*il));
-    listiter type = xmalloc(sizeof(*il));
+    listiter type = xmalloc(sizeof(*type));
     init_listiter(il, tb->first);
     init_listiter(type, tb->t[1]);
     int lg = 0;
@@ -42,6 +42,7 @@ int print_header(struct table *tb)
 
 int print(struct table* tb, uint32_t start_tab, uint32_t stop_tab)
 {
+    printf("\n");
     const char *err = "table too short !!";
     if(start_tab > tb->height)
     {
@@ -55,6 +56,34 @@ int print(struct table* tb, uint32_t start_tab, uint32_t stop_tab)
         print_header(tb);
         start_tab = (start_tab == 0)? 1:start_tab;
     }
+    else
+    {
+    listiter type = xmalloc(sizeof(*type));
+    init_listiter(type, tb->t[1]);
+    int lg = 0;
+    char c = 'A';
+    while(next_field(type))
+            {
+                switch(type->curr->datatype)
+                {
+                    case STRING:
+                    {
+                        lg = tb->fmtstr;
+                        break;
+                    }
+                    
+                    default:
+                    {
+                        lg = tb->fmtnum;
+                        break;
+                    }
+                }
+                printf("%*c",lg,c++);
+            }   
+        printf("\n");
+        free(type);
+    }
+
     listiter il = xmalloc(sizeof(*il));
     for(size_t u = start_tab; u<stop_tab; u++)
     {

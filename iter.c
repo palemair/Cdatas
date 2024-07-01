@@ -2,6 +2,7 @@
 #include "xtools.h"
 #include "iter.h"
 
+
 void init_listiter(listiter ils, struct list *ls)
 {
    ils->ls = ls;
@@ -36,7 +37,6 @@ bool next_field(listiter il)
         }
         else
         {
-            /* (void)fprintf(stderr,"%s\n","End of list !!"); */
             return false;
         }
     }
@@ -69,7 +69,6 @@ bool next_list(tabiter itb)
         }
         else
         {
-            /* (void)fprintf(stderr,"%s\n","End of tab !!"); */
             return false;
         }
     }

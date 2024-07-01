@@ -155,15 +155,13 @@ int write_csv (char* filename, struct table *tb)
                     fputc('"',outfile);
                     fprint_field(il->curr,outfile,0,just,6);
                     fputc('"',outfile);
-                    fprintf(outfile,"%c",tb->Dlim);
                 }
                 else
                 {
                     fprint_field(il->curr,outfile,0,just,6);
-                    fprintf(outfile,"%c",tb->Dlim);
                 }
+            fprintf(outfile,"%c",(il->pos == tb->width - 1)? '\n':tb->Dlim);
             }
-            fprintf(outfile,"\n");
     }
     free(il);
     fclose(outfile);
