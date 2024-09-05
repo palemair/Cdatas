@@ -42,7 +42,6 @@ int print_header(struct table *tb)
 
 int print(struct table* tb, uint32_t start_tab, uint32_t stop_tab)
 {
-    printf("\n");
     const char *err = "table too short !!";
     if(start_tab > tb->height)
     {
@@ -95,6 +94,7 @@ int print(struct table* tb, uint32_t start_tab, uint32_t stop_tab)
         }
         printf("\n");
     }
+    printf("\n");
     free(il);
 return EXIT_SUCCESS;
 }
