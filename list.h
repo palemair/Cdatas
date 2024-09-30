@@ -7,24 +7,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "field.h"
 #include "regexarray.h"
 
 /* STRUCTURES */
 /* ~~~~~~~~~~~*/
-/* simple csv field */
-struct field
-{
-   uint8_t datatype;
-   union
-   {
-      long lgdata;
-      double dbdata;
-      char *strdata;
-   };
-   struct field *nxt;
-   struct field *prv;
-};
-
 /* linked list for row */
 struct list
 {
@@ -34,8 +21,6 @@ struct list
 };
 
 /* prototypes */
-int set_value (struct field* fd, char* value,regexarray* rg);
-int clear_value (struct field* fd);
 
 struct list *init_list (void);
 int append(struct list** ls, regexarray* rg, void* value);

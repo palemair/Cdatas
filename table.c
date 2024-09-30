@@ -14,9 +14,8 @@ struct table* init_table (char delim, bool header)
     new->height = 0;
     new->t = NULL;
     new->fmtnum = 10;
-    new->fmtstr = 2.5 * new->fmtnum;
+    new->fmtstr = 3 * new->fmtnum;
     new->fmtprecis = 2;
-    new->first = NULL;
 
     return new;
 }

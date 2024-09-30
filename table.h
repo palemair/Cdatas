@@ -15,7 +15,6 @@ struct table
    struct list **t;
    char Dlim;
    bool header;
-   struct list *first;
    uint16_t width;
    uint32_t height;
    uint8_t fmtstr;

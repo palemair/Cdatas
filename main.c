@@ -1,6 +1,7 @@
 /* Handle a csvfile with C */
 #define _GNU_SOURCE
 #include <time.h>
+#include <locale.h>
 #include "csv.h"
 #include "print.h"
 #include "xtools.h"
@@ -8,14 +9,40 @@
 
 int main ()
 {
-    struct table* tb = load_csv ("CSV-file/xaa", ',', true);
-    
+    if(setlocale(LC_CTYPE | LC_COLLATE,"") == NULL)
+    {
+        perror("setlocale");
+        return EXIT_FAILURE;
+    }
+
     START;
+    struct table* tb = load_csv ("CSV-file/xaa", ',', true);
+    STOP;
     
-    /* print_header(tb); */
-    printall(tb);
+    TPS ("load_csv");
+
+    r_printable(tb,13);
+
     head(tb);
-    tail(tb);
+    write_csv("Test.csv",tb);
+
+    /* for(int i = 0;i<880; i++ ) */
+    /* { */
+    /*     u = next_iter(iter); */
+    /*     if(u == 2) */
+    /*     { */
+    /*         putchar('\n'); */
+    /*         printf("| %5ld - ",iter->ypos); */
+    /*     } */
+    /*     if(u == 0) */
+    /*         break; */
+    /*     print_iter(iter); */
+    /* } */
+    /* putchar('\n'); */
+
+    /* print(tb,2,0,10); */
+    /* head(tb); */
+    /* tail(tb); */
 
     /* listiter il = xmalloc(sizeof(*il)); */
     /* unsigned int i = 1; */
@@ -28,12 +55,10 @@ int main ()
     /* } */
 
     /* free(il); */
-    STOP;
     
-    (void)write_csv("testw.csv",tb);
+    /* write_csv("test",tb); */
 
     drop_table (tb);
     
-    TPS ("load_csv");
     return EXIT_SUCCESS;
 }

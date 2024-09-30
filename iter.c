@@ -1,179 +1,69 @@
 #define _GNU_SOURCE
+#include <wchar.h>
+#include <stdint.h>
 #include "xtools.h"
 #include "iter.h"
+#include "list.h"
 
-
-void init_listiter(listiter ils, struct list *ls)
+void init_iter(iterator* it,struct table *tb)
 {
-   ils->ls = ls;
-   ils->curr = NULL; 
-   ils->pos = -1;
-
+   it->tb = tb;
+   it->curr = NULL; 
+   it->xpos = -1;
+   it->ypos = -1;
 }
 
-void init_tabiter(tabiter  itb, struct table *tb)
+uint8_t next_iter(iterator* it)
 {
-   itb->tb = tb;
-   itb->curr = NULL; 
-   itb->pos = -1;
-
-}
-bool next_field(listiter il)
-{
-    if((il->curr == NULL) && (il->pos == -1))
+    if((it->curr == NULL) && (it->ypos == -1) && (it->xpos == -1))
     {
-       il->curr = il->ls->head;
-       il->pos++;
-       return true;
-    }
-
-    else 
-    {
-        if(il->curr->nxt)
-        {
-            il->pos++;
-            il->curr = il->curr->nxt;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-}
-
-bool next_list(tabiter itb)
-{
-    if((itb->curr == NULL) && (itb->pos == -1))
-    {
-       if(itb->tb->header)
+       if(it->tb->header)
        {
-           itb->curr = itb->tb->t[1];
-           itb->pos++;
+           it->curr = it->tb->t[1]->head;
+           it->ypos+=2;
+           it->xpos++;
        }
        else
        {
-           itb->curr = itb->tb->t[0];
+           it->curr = it->tb->t[0]->head;
+           it->ypos ++;
+           it->xpos ++;
        }
-       itb->pos++;
-       return true;
+       return 2;
     }
 
     else 
     {
-        if(itb->pos < (int)itb->tb->height -1)
-        {
-            itb->pos++;
-            itb->curr = itb->tb->t[itb->pos];
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-}
-
-int set_field(struct field *fd, char* value, regexarray *rg)
-{
-    fd->datatype = typedata (rg, value);
-    switch (fd->datatype)
-    {
-    case LONG:
-        {
-            long result = 0; 
-
-            char * endPtr;
-            result = strtol(value, &endPtr, 10 );
-            if (value == endPtr)
-            {
-                fprintf (stderr, "%s\n", "long conversion fail !!");
-                return -1;
+       if(it->curr->nxt != NULL)
+       {
+            it->curr = it->curr->nxt;
+                it->xpos++;
+                return 1;
             }
-            else
+            else 
             {
-                fd->lgdata = result;
+                it->ypos++;
+                if((unsigned long)it->ypos>=it->tb->height) 
+                {
+                    return 0;
+                }
+                else
+                {
+                    it->curr = it->tb->t[it->ypos]->head;
+                    it->xpos = 0;
+                    return 2;
+                }
             }
-           return LONG;
-           break;
-        }
-    case FLOAT:
-    case PERCENT:
-        {
-           errno = 0;
-           double result;
-           result = strtod (value, NULL);
-
-           if (errno != 0)
-           {
-               perror ("strtod");
-               return -1;
-           }
-           else
-           {
-               fd->dbdata = result;
-           }
-           return FLOAT;
-           break;
-        }
-    case TIME:
-    case DATE:
-    case NIL:
-        {
-            fd->strdata = NULL;
-            return NIL;
-            break;
-        }
-    case STRING:
-        {
-            fd->strdata = strdup(value);
-            return STRING;
-            break;
-        }
-    default:
-        {
-            return -1;
-            break;
-        }
     }
+    return 0;
 }
 
-void clear_field (struct field* fd)
+void fprint_iter(iterator* it,FILE* outputfile)
 {
-    if (fd->datatype == STRING) free (fd->strdata);
-    fd->datatype = NIL;
-    fd->strdata = NULL;
+    fprint_field(it->curr,outputfile,it->tb->fmtstr,it->tb->fmtnum,it->tb->fmtprecis);
 }
 
-void fprint_field(struct field* fd,FILE* outputfile,int lgnumber,int lgstr, int lgprecision)
+void print_iter(iterator * it)
 {
-    switch (fd->datatype)
-    {
-        case LONG:
-                {
-                    fprintf (outputfile,"%*ld",lgnumber,fd->lgdata);
-                    break;
-                }
-
-        case FLOAT:
-                {
-                    fprintf (outputfile,"%*.*f",lgnumber,lgprecision,fd->dbdata);
-                    break;
-                }
-        case NIL:
-                {
-                    fprintf (outputfile,"%-*.*s",lgstr,lgstr,"---");
-                    break;
-                }
-        case STRING:
-                {
-                    fprintf (outputfile,"%-*.*s",lgstr,lgstr,fd->strdata);
-                    break;
-                }
-    }
-}
-
-void print_field(struct field* fd,int lgnumber,int lgstr, int lgprecision)
-{
-    fprint_field(fd,stdout,lgnumber,lgstr,lgprecision);
+    fprint_iter(it,stdout);
 }

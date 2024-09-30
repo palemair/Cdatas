@@ -5,7 +5,7 @@ EXEC=cdatas
 
 all: $(EXEC)
 
-cdatas: main.o csv.o table.o print.o list.o iter.o regexarray.o xtools.o
+cdatas: main.o csv.o table.o print.o list.o iter.o field.o regexarray.o xtools.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 main.o: main.c
@@ -30,6 +30,9 @@ csv.o: csv.c
 	$(CC) -c $^ $(CFLAGS)
 
 iter.o: iter.c
+	$(CC) -c $^ $(CFLAGS)
+
+field.o: field.c
 	$(CC) -c $^ $(CFLAGS)
 
 clean:

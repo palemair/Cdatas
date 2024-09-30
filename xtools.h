@@ -23,7 +23,5 @@ void* xreallocarray (void* ptr, size_t nmemb, size_t size);
 char* xtrim (const char* raw);
 /* load an entire file in a char buffer */
 char* xreadfile (char* filename);
-/* translate string to uppercase */
-char* strtoupper(const char* string);
 
 #endif

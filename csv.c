@@ -50,8 +50,8 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
         {
             *(cell + count) = '\0';
             pf = xtrim (cell);
-            int err = append (curr, rp, pf);
-            if (!err)
+            int ret = append (curr, rp, pf);
+            if (ret == ERR)
             {
                 fprintf (stderr, "%s\n", "append error");
             }
@@ -102,11 +102,6 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
     (*tb)->t = tmp;
     (*tb)->width = (*tb)->t[0]->len;
 
-    if(((*tb)->header == true) && (*tb)->height>0)
-    {
-        (*tb)->first = (*tb)->t[0];
-    }
-
     return (EXIT_SUCCESS);
 }
 
@@ -133,37 +128,33 @@ struct table* load_csv (char* filename, char delim, bool header)
     return tb;
 }
 
-
 int write_csv (char* filename, struct table *tb)
 {
     FILE* outfile = fopen(filename,"w");
     if(outfile == NULL)
     {
         perror("fopen");
-        return -1;
+        return EXIT_FAILURE;
     }
-    listiter il = xmalloc(sizeof(*il)); 
+    iterator iter = {0}; 
+    iterator* it = &iter;; 
     int just = 0;
-    for(size_t i=0; i<tb->height; i++)
-    {
-        init_listiter(il, tb->t[i]);
-        while(next_field(il)) 
+    init_iter(it, tb);
+    while(next_iter(it)) 
             {
-                if(il->curr->datatype == STRING) 
+                if(it->curr->datatype == STRING) 
                 {
-                    just = strlen(il->curr->strdata);
+                    just = strlen(it->curr->strdata);
                     fputc('"',outfile);
-                    fprint_field(il->curr,outfile,0,just,6);
+                    fprint_field(it->curr,outfile,just,0,just);
                     fputc('"',outfile);
                 }
                 else
                 {
-                    fprint_field(il->curr,outfile,0,just,6);
+                    fprint_field(it->curr,outfile,just,0,6);
                 }
-            fprintf(outfile,"%c",(il->pos == tb->width - 1)? '\n':tb->Dlim);
+            fprintf(outfile,"%c",(it->xpos == tb->width - 1)? '\n':tb->Dlim);
             }
-    }
-    free(il);
     fclose(outfile);
 
     return EXIT_SUCCESS;

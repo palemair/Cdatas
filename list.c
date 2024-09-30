@@ -2,23 +2,9 @@
 #define _GNU_SOURCE
 #include <errno.h>
 #include "list.h"
-#include "iter.h"
 #include "xtools.h"
 
-int set_value (struct field* fd, char* value,regexarray* rg)
-{
-    fd->nxt = NULL;
-    int ret = set_field(fd,value,rg);
-    if(ret == -1)
-    {
-        return 0;
-    }
-    else
-    {
-        return 1;
-    }
-}
-
+/* Initialize a list */
 struct list* init_list (void)
 {
     struct list* new = xmalloc (sizeof (*new));
@@ -30,40 +16,44 @@ struct list* init_list (void)
     return new;
 }
 
+/* Append a right field and assign a value */
 int append (struct list** ls, regexarray* rg, void* value)
 {
     if (*ls == NULL)
     {
         fprintf (stderr, "%s\n", "Init struct list first !!");
+        return ERR;
     }
     else
     {
         struct field* new = xmalloc (sizeof (*new));
-        int Error_assign = set_value (new, value, rg);
 
-        if (!Error_assign)
+        if (set_field (new, value, rg) == ERR)
         {
             fprintf (stderr, "%s\n", "assignement error !!");
-            return Error_assign;
-        }
-
-        if ((*ls)->tail == NULL)
-        {
-            new->prv = (*ls)->tail;
-            (*ls)->tail = new;
-            (*ls)->head = new;
+            return ERR;
         }
         else
         {
-            new->prv = (*ls)->tail;
-            (*ls)->tail->nxt = new;
-            (*ls)->tail = new;
+            if ((*ls)->tail == NULL)
+            {
+                new->prv = (*ls)->tail;
+                (*ls)->tail = new;
+                (*ls)->head = new;
+            }
+            else
+            {
+                new->prv = (*ls)->tail;
+                (*ls)->tail->nxt = new;
+                (*ls)->tail = new;
+            }
+            (*ls)->len++;
         }
-        (*ls)->len++;
     }
     return 1;
 }
 
+/* delete the right field */
 void pop (struct list** ls)
 {
     struct field* tmp;
@@ -82,19 +72,19 @@ void pop (struct list** ls)
         {
             tmp = fd;
             fd = fd->prv;
-                fd->nxt = NULL;
-                (*ls)->tail = fd;
-                (*ls)->len--;
+            fd->nxt = NULL;
+            (*ls)->tail = fd;
+            (*ls)->len--;
 
-            }
-            clear_field(tmp);
-            free (tmp);
         }
-        else
-        {
-            fprintf (stderr, "%s\n", "empty list!");
-        }
+        clear_field (tmp);
+        free (tmp);
     }
+    else
+    {
+        fprintf (stderr, "%s\n", "empty list!");
+    }
+}
 
 void popleft (struct list** ls)
 {
@@ -124,7 +114,7 @@ void popleft (struct list** ls)
                 (*ls)->head = fd;
                 (*ls)->len--;
             }
-            clear_field(tmp);
+            clear_field (tmp);
             free (tmp);
         }
         else
@@ -136,14 +126,15 @@ void popleft (struct list** ls)
 
 void del_list (struct list* ls)
 {
-    if(ls !=NULL)
+    if (ls != NULL)
     {
         struct field* tmp;
         struct field* pfd = ls->head;
+
         while (pfd)
         {
             tmp = pfd;
-            clear_field(tmp);
+            clear_field (tmp);
             pfd = pfd->nxt;
             free (tmp);
         }
@@ -208,58 +199,9 @@ void del_field_by_index (struct list** ls, uint16_t index)
 
             before->nxt = after;
             after->prv = before;
-            clear_field(fd);
+            clear_field (fd);
             free (fd);
             (*ls)->len--;
         }
     }
 }
-
-/* void insert_by_index (struct list** ls, uint16_t index, int value) */
-/* { */
-
-/*     if (index + 1 > (*ls)->len) */
-/*     { */
-/*         fprintf (stderr, "%s\n", "out of range !"); */
-/*     } */
-/*     else */
-/*     { */
-/*         if (index == 0) */
-/*         { */
-/*             appendleft (ls, value); */
-/*         } */
-/*         else if ((*ls)->len - 1 == index) */
-/*         { */
-/*             append (ls, value); */
-/*         } */
-/*         else */
-/*         { */
-/*             struct field* before,* after; */
-/*             struct field* fd = (*ls)->head; */
-/*             bool test = is_start_head (ls, index); */
-
-/*             if (test) */
-/*             { */
-/*                 fd = (*ls)->head; */
-/*                 while (index-- > 0) fd = fd->nxt; */
-/*             } */
-/*             else */
-/*             { */
-/*                 fd = (*ls)->tail; */
-/*                 index = (*ls)->len - 1 - index; */
-/*                 while (index-- > 0) fd = fd->prv; */
-/*             } */
-
-/*             before = fd->prv; */
-/*             after = fd; */
-
-/*             struct field* new = xmalloc (sizeof (*new)); */
-/*             new->value = value; */
-/*             new->nxt = after; */
-/*             new->prv = before; */
-/*             before->nxt = new; */
-/*             after->prv = new; */
-/*             (*ls)->len++; */
-/*         } */
-/*     } */
-/* } */
