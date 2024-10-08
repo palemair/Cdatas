@@ -20,6 +20,7 @@ struct table
    uint8_t fmtstr;
    uint8_t fmtnum;
    uint8_t fmtprecis;
+   size_t rowsremain;
 };
 
 /* prototypes */

@@ -16,6 +16,7 @@ struct table* init_table (char delim, bool header)
     new->fmtnum = 10;
     new->fmtstr = 3 * new->fmtnum;
     new->fmtprecis = 2;
+    new-> rowsremain = 0;
 
     return new;
 }

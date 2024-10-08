@@ -2,6 +2,7 @@
 #define _GNU_SOURCE
 #include <time.h>
 #include <locale.h>
+#include <wchar.h>
 #include "csv.h"
 #include "print.h"
 #include "xtools.h"
@@ -16,15 +17,12 @@ int main ()
     }
 
     START;
-    struct table* tb = load_csv ("CSV-file/xaa", ',', true);
+    struct table* tb = load_csv ("CSV-file/xaa", ',', true,true);
     STOP;
     
     TPS ("load_csv");
 
-    r_printable(tb,13);
-
-    head(tb);
-    write_csv("Test.csv",tb);
+    r_printable(tb, 5);
 
     /* for(int i = 0;i<880; i++ ) */
     /* { */

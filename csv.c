@@ -50,6 +50,7 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
         {
             *(cell + count) = '\0';
             pf = xtrim (cell);
+
             int ret = append (curr, rp, pf);
             if (ret == ERR)
             {
@@ -63,6 +64,7 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
                 struct list* tmplist = *curr;
                 struct field* tmpfd = tmplist->head;
                 bool nilrow = true;
+                /* check empty line */ 
                 while(tmpfd)
                 {
                     nilrow = (tmpfd->datatype != NIL)?false:true;
@@ -98,16 +100,26 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
     }
     free (*curr);
     free (cell);
-    tmp = xreallocarray (tmp, (*tb)->height, sizeof (struct list *));
+    /* count free rows in the table */
+    (*tb)->rowsremain = tsize - (*tb)->height;
+    curr = (tmp + (*tb)->height + 1);
+    *curr = NULL;
+
+    /* tmp = xreallocarray (tmp, (*tb)->height, sizeof (struct list *)); */
     (*tb)->t = tmp;
     (*tb)->width = (*tb)->t[0]->len;
 
     return (EXIT_SUCCESS);
 }
 
-struct table* load_csv (char* filename, char delim, bool header)
+struct table* load_csv (char* filename, char delim, bool header,bool dataconvert)
 {
-    regexarray* rp = reg_init ();
+    regexarray* rp = NULL;
+    if(dataconvert)
+    {
+        rp = reg_init ();
+    }
+
     char* buffer = xreadfile (filename);
     if (buffer == NULL)
     {
@@ -122,7 +134,10 @@ struct table* load_csv (char* filename, char delim, bool header)
         fprintf (stderr, "%s", "error parse_csv");
         return NULL;
     }
-    free_reg (rp);
+    if(rp != NULL)
+    {
+        free_reg (rp);
+    }
     free (buffer);
 
     return tb;

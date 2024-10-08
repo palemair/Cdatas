@@ -13,8 +13,8 @@ void printable(struct table* tb);
 
 void r_printable(struct table* tb, unsigned int step);
 
-int head(struct table* tb);
+int head(struct table* tb, unsigned int step);
 
-int tail(struct table* tb);
+int tail(struct table* tb, unsigned int step);
 
 #endif

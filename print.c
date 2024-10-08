@@ -15,7 +15,7 @@ int print_header (struct table* tb)
 
     fd1 = tb->t[1]->head;
     fd0 = tb->t[0]->head;
-    printf (" %s | ", "Desc");
+    printf ("%6s | ", "Desc");
     if (tb->header)
     {
 
@@ -23,10 +23,11 @@ int print_header (struct table* tb)
         {
             buff = strdupa (fd0->strdata);
             char* pt = buff;
-            char* res = xmalloc (strlen (fd0->strdata) + 1);
-            char* result = res;
+            char result[(strlen (fd0->strdata) + 1)];
+            char* res = result;
 
             while ((*res++ = toupper (*pt++)));
+            *res ='\0';
 
             switch (fd1->datatype)
             {
@@ -35,7 +36,6 @@ int print_header (struct table* tb)
                     lg = tb->fmtstr;
                     break;
                 }
-
             default:
                 {
                     lg = tb->fmtnum;
@@ -71,7 +71,7 @@ int print_header (struct table* tb)
                     break;
                 }
             }
-            printf ("%*s", lg, vindex);
+            printf ("%*s ", lg, vindex);
             fd1 = fd1->nxt;
             c++;
         }
@@ -91,7 +91,7 @@ void printlines (struct table* tb, uint32_t start, uint32_t stop)
     for (unsigned u = start; u < stop; u++)
     {
         fd = tb->t[u]->head;
-        printf ("%5u | ", u);
+        printf ("%6u | ", u);
 
         while (fd)
         {
@@ -115,13 +115,13 @@ void r_printable (struct table* tb, unsigned int step)
 
     struct field* fd0,* fd1;
     int lg;
-    char *buff = "---";
+    char *buff = "...";
 
     for (int i = 0; i < 2; i++)
     {
         fd1 = tb->t[1]->head;
         fd0 = tb->t[0]->head;
-        printf ("  %s | ", buff);
+        printf ("   %s| ", buff);
         while (fd0)
         {
             switch (fd1->datatype)
@@ -129,14 +129,13 @@ void r_printable (struct table* tb, unsigned int step)
             case STRING:
                 {
                     lg = tb->fmtstr;
-                    printf ("%-*s", lg, buff);
+                    printf ("%-*s ", lg, buff);
                     break;
                 }
-
             default:
                 {
                     lg = tb->fmtnum;
-                    printf ("%*s", lg, buff);
+                    printf ("%*s ", lg, buff);
                     break;
                 }
             }
@@ -148,16 +147,16 @@ void r_printable (struct table* tb, unsigned int step)
     printlines (tb, (tb->height - step), tb->height);
 }
 
-int head(struct table* tb)
+int head(struct table* tb,unsigned int step)
 {
     print_header (tb);
-    (tb->height>10)? printlines(tb,0,10):printlines(tb,0,tb->height);
+    (tb->height>step)? printlines(tb,0,step):printlines(tb,0,tb->height);
     return EXIT_SUCCESS;
 }
 
-int tail(struct table* tb)
+int tail(struct table* tb, unsigned int step)
 {
     print_header (tb);
-    (tb->height>10)? printlines(tb,(tb->height)-10,tb->height):printlines(tb,0,tb->height);
+    (tb->height>step)? printlines(tb,(tb->height)-step,tb->height):printlines(tb,0,tb->height);
     return EXIT_SUCCESS;
 }
