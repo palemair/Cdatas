@@ -60,7 +60,7 @@ uint8_t next_iter(iterator* it)
 
 void fprint_iter(iterator* it,FILE* outputfile)
 {
-    fprint_field(it->curr,outputfile,it->tb->fmtstr,it->tb->fmtnum,it->tb->fmtprecis);
+    fprint_field(it->curr,outputfile,it->tb->fdwidth,it->tb->fdprecis);
 }
 
 void print_iter(iterator * it)

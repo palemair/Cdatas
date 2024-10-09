@@ -26,7 +26,7 @@ int append (struct list** ls, regexarray* rg, void* value)
     }
     else
     {
-        struct field* new = xmalloc (sizeof (*new));
+        struct field* new = xcalloc (1,sizeof (*new));
 
         if (set_field (new, value, rg) == ERR)
         {
@@ -86,11 +86,12 @@ void pop (struct list** ls)
     }
 }
 
+/* delete the left field */
 void popleft (struct list** ls)
 {
     if ((*ls) == NULL)
     {
-        fprintf (stderr, "%s\n", "Init struct row first !!");
+        fprintf (stderr, "%s\n", "Init struct list first !!");
     }
     else
     {
@@ -124,6 +125,7 @@ void popleft (struct list** ls)
     }
 }
 
+/* delete all fields from a list */
 void del_list (struct list* ls)
 {
     if (ls != NULL)
@@ -144,6 +146,7 @@ void del_list (struct list* ls)
     }
 }
 
+/* look for the better start of a list */
 bool is_start_head (struct list** ls, uint16_t index)
 {
     bool b = (index < (*ls)->len) ? true : false;

@@ -17,12 +17,13 @@ int main ()
     }
 
     START;
-    struct table* tb = load_csv ("CSV-file/xaa", ',', true,true);
+    struct table* tb = load_csv ("CSV-file/technic.csv", ',', true,true);
     STOP;
     
     TPS ("load_csv");
 
-    r_printable(tb, 5);
+    head(tb,10);
+
 
     /* for(int i = 0;i<880; i++ ) */
     /* { */

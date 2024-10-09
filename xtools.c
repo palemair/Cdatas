@@ -23,6 +23,21 @@ void* xmalloc (size_t size)
     return value;
 }
 
+/* calloc custom */
+void* xcalloc (size_t elemcount, size_t elemsize)
+{
+    void* value = NULL;
+
+    value = calloc (elemcount,elemsize);
+
+    if (value == NULL)
+    {
+        perror ("Virtual memory exhausted");
+        exit (EXIT_FAILURE);
+    }
+
+    return value;
+}
 /* realloc custom to avoid error test */
 void* xreallocarray (void* ptr, size_t nmemb, size_t size)
 {

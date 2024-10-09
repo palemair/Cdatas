@@ -17,15 +17,14 @@ struct table
    bool header;
    uint16_t width;
    uint32_t height;
-   uint8_t fmtstr;
-   uint8_t fmtnum;
-   uint8_t fmtprecis;
+   uint8_t fdwidth;
+   uint8_t fdprecis;
    size_t rowsremain;
 };
 
 /* prototypes */
 
-struct table *init_table (char delim, bool header);
+struct table* init_table (char delim, bool header, int fdwidth);
 void drop_table (struct table* tb);
 
 #endif

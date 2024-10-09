@@ -7,6 +7,8 @@
 
 int print_header(struct table* tb);
 
+void printline (struct table* tb, uint32_t index);
+
 void printlines(struct table* tb, uint32_t start, uint32_t stop);
 
 void printable(struct table* tb);

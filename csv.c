@@ -68,6 +68,7 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
                 while(tmpfd)
                 {
                     nilrow = (tmpfd->datatype != NIL)?false:true;
+                    if(nilrow == false) break;
                     tmpfd=tmpfd->nxt;
                 }
 
@@ -104,8 +105,17 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
     (*tb)->rowsremain = tsize - (*tb)->height;
     curr = (tmp + (*tb)->height + 1);
     *curr = NULL;
-
-    /* tmp = xreallocarray (tmp, (*tb)->height, sizeof (struct list *)); */
+    
+    if((*tb)->header)
+    {
+        *curr = tmp[0];
+        struct field* fd = (*curr)->head;
+        while(fd)
+        {
+            fd->datatype = DESC;
+            fd = fd -> nxt;
+        }
+    }
     (*tb)->t = tmp;
     (*tb)->width = (*tb)->t[0]->len;
 
@@ -127,7 +137,7 @@ struct table* load_csv (char* filename, char delim, bool header,bool dataconvert
         exit(EXIT_FAILURE);
     }
 
-    struct table* tb = init_table (delim, header);
+    struct table* tb = init_table (delim, header,20);
     int n = parse_csv (buffer, rp, &tb);
     if (n != EXIT_SUCCESS)
     {
@@ -161,12 +171,12 @@ int write_csv (char* filename, struct table *tb)
                 {
                     just = strlen(it->curr->strdata);
                     fputc('"',outfile);
-                    fprint_field(it->curr,outfile,just,0,just);
+                    fprint_field(it->curr,outfile,just,just);
                     fputc('"',outfile);
                 }
                 else
                 {
-                    fprint_field(it->curr,outfile,just,0,6);
+                    fprint_field(it->curr,outfile,just,6);
                 }
             fprintf(outfile,"%c",(it->xpos == tb->width - 1)? '\n':tb->Dlim);
             }

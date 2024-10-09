@@ -4,7 +4,7 @@
 #include "iter.h"
 #include "xtools.h"
 
-struct table* init_table (char delim, bool header)
+struct table* init_table (char delim, bool header, int fdwidth)
 {
     struct table* new = xmalloc (sizeof (*new));
 
@@ -13,9 +13,8 @@ struct table* init_table (char delim, bool header)
     new->width = 0;
     new->height = 0;
     new->t = NULL;
-    new->fmtnum = 10;
-    new->fmtstr = 3 * new->fmtnum;
-    new->fmtprecis = 2;
+    new->fdwidth = fdwidth;
+    new->fdprecis = 2;
     new-> rowsremain = 0;
 
     return new;
