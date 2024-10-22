@@ -23,7 +23,68 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
     char* pf = NULL;
     position state = OUTQ;
     int DELIM = (*tb)->Dlim;
-    
+        
+    /* first line */
+    if((*tb)->header)
+    {
+        struct list* first = init_list();
+        while (((c=*p++)!=ENDL) && (state == OUTQ ))
+        {
+            if (count != 0 && ((count % (SIZE - 2)) == 0))
+            {
+                ++nb;
+                cell = xreallocarray (cell, nb * SIZE, sizeof (char));
+            }
+            if (c == DQUOTE && state == OUTQ)
+                state = INQ;
+
+            else if (c == DQUOTE && state == INQ)
+                state = OUTQ;
+
+            else if (state == INQ && c == ENDL)
+            {
+                *(cell + count) = '\\';
+                count++;
+                *(cell + count) = 'n';
+                count++;
+                continue;
+            }
+
+            else if (state == OUTQ && (c == DELIM))
+            /* field ended */ 
+            {
+                *(cell + count) = '\0';
+                pf = xtrim (cell);
+
+                int ret = append (&first, NULL, pf);
+                if (ret == ERR)
+                {
+                    fprintf (stderr, "%s\n", "append error");
+                }
+                free (pf);
+            
+                count = 0;
+                memset (cell, 0, nb * SIZE);
+                continue;
+            }
+            *(cell + count) = c;
+            count++;
+        }
+        *(cell + count) = '\0';
+        pf = xtrim (cell);
+
+        int ret = append (&first, NULL, pf);
+        if (ret == ERR)
+        {
+            fprintf (stderr, "%s\n", "append error");
+        }
+        free (pf);
+            
+        count = 0;
+        memset (cell, 0, nb * SIZE);
+        (*tb)->desc = first;
+    }
+
     while ((c = *p++))
     {
         if (count != 0 && ((count % (SIZE - 2)) == 0))
@@ -106,16 +167,6 @@ int parse_csv (char* datas, regexarray * rp, struct table** tb)
     curr = (tmp + (*tb)->height + 1);
     *curr = NULL;
     
-    if((*tb)->header)
-    {
-        *curr = tmp[0];
-        struct field* fd = (*curr)->head;
-        while(fd)
-        {
-            fd->datatype = DESC;
-            fd = fd -> nxt;
-        }
-    }
     (*tb)->t = tmp;
     (*tb)->width = (*tb)->t[0]->len;
 
@@ -137,7 +188,7 @@ struct table* load_csv (char* filename, char delim, bool header,bool dataconvert
         exit(EXIT_FAILURE);
     }
 
-    struct table* tb = init_table (delim, header,20);
+    struct table* tb = init_table (delim, header,25);
     int n = parse_csv (buffer, rp, &tb);
     if (n != EXIT_SUCCESS)
     {
@@ -161,10 +212,8 @@ int write_csv (char* filename, struct table *tb)
         perror("fopen");
         return EXIT_FAILURE;
     }
-    iterator iter = {0}; 
-    iterator* it = &iter;; 
+    iterator it = init_iter(tb); 
     int just = 0;
-    init_iter(it, tb);
     while(next_iter(it)) 
             {
                 if(it->curr->datatype == STRING) 
@@ -180,6 +229,7 @@ int write_csv (char* filename, struct table *tb)
                 }
             fprintf(outfile,"%c",(it->xpos == tb->width - 1)? '\n':tb->Dlim);
             }
+    destroy_iter(it);
     fclose(outfile);
 
     return EXIT_SUCCESS;

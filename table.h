@@ -12,6 +12,7 @@
 /* table structure containing csv */
 struct table
 {
+   struct list *desc;
    struct list **t;
    char Dlim;
    bool header;

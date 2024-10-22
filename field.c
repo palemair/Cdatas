@@ -1,6 +1,8 @@
 /* handle a csvfile with C */
 #define _GNU_SOURCE
 #include <string.h>
+#include <locale.h>
+#include <wchar.h>
 #include <ctype.h>
 #include <wchar.h>
 #include <errno.h>
@@ -9,12 +11,14 @@
 /* Assign a value to a field */
 int set_field (struct field* fd, char* value, regexarray* rg)
 {
+    fd->just = strlen(value);
+
     if (rg == NULL)
     {
         fd->nxt = NULL;
         if(value !=NULL)
         { 
-            fd->datatype = STRING;
+            fd->datatype = DESC;
             fd->strdata = strdup (value);
         }
         else
@@ -27,7 +31,7 @@ int set_field (struct field* fd, char* value, regexarray* rg)
     else
     {
         fd->nxt = NULL;
-        fd->datatype = typedata (rg, value);
+        fd->datatype = typedata(rg, value);
         switch (fd->datatype)
         {
         case LONG:
@@ -97,21 +101,76 @@ int set_field (struct field* fd, char* value, regexarray* rg)
     }
 }
 
+/* deallocate field */
 void clear_field (struct field* fd)
 {
-    if (fd->datatype == STRING) free(fd->strdata);
+    if ((fd->datatype) == STRING) free(fd->strdata);
+    if ((fd->datatype) == DESC) free(fd->strdata);
     fd->datatype = NIL;
     fd->strdata = NULL;
 }
 
+/* print to stdout */
+void print_field(struct field* fd, int fdwidth, int fdprecis)
+{
+    if (setlocale (LC_CTYPE, "") == NULL)
+    {
+        perror ("setlocale");
+        exit(EXIT_FAILURE);
+    }
 
+    wchar_t conv[1024] = {0};
+    size_t lg = 0;
+
+    switch (fd->datatype)
+    {
+        case LONG:
+                {
+                    printf(" %*lld |",fdwidth,fd->lgdata);
+                    break;
+                }
+
+        case FLOAT:
+                {
+                    printf(" %*.*f |",fdwidth,fdprecis,fd->dbdata);
+                    break;
+                }
+        case NIL:
+                {
+                    printf(" %-*.*s |",fdwidth,fdwidth,"---");
+                    break;
+                }
+        case STRING:
+                {
+                    char str[fdwidth + 1];
+                    sprintf(str,"%-*.*s",fdwidth,fdwidth,fd->strdata);
+                    mbstowcs (conv, str, strlen (str) + 1);
+                    lg = wcslen(conv);
+                    lg = strlen(str) - lg;
+                    int just = fdwidth + (int)lg;
+                    printf(" %-*.*s |",just,just,str);
+                    break;
+                }
+        case  DESC:
+                {
+                    char * buff = strdupa(fd->strdata);
+                    char result[(strlen (fd->strdata) + 1)];
+                    char* res = result;
+                    while ((*res++ = toupper (*buff++)));
+                    printf(" %*.*s |",fdwidth,fdwidth,result);
+                    break;
+                }
+    }
+}
+
+/* print to file */
 void fprint_field(struct field* fd,FILE* outputfile, int fdwidth, int fdprecis)
 {
     switch (fd->datatype)
     {
         case LONG:
                 {
-                    fprintf (outputfile,"%*lld",fdwidth,fd->lgdata);
+                    fprintf (outputfile,"%lld",fd->lgdata);
                     break;
                 }
 
@@ -122,7 +181,7 @@ void fprint_field(struct field* fd,FILE* outputfile, int fdwidth, int fdprecis)
                 }
         case NIL:
                 {
-                    fprintf (outputfile,"%-*.*s",fdwidth,fdwidth,"---");
+                    fprintf (outputfile,"%-*.*s",fdwidth,fdwidth,"");
                     break;
                 }
         case STRING:
@@ -132,14 +191,8 @@ void fprint_field(struct field* fd,FILE* outputfile, int fdwidth, int fdprecis)
                 }
         case  DESC:
                 {
-                    char * buff = strdupa(fd->strdata);
-                    char result[(strlen (fd->strdata) + 1)];
-                    char* res = result;
-                    while ((*res++ = toupper (*buff++)));
-
-                    fprintf(outputfile,"%*.*s",fdwidth,fdwidth,result);
+                    fprintf(outputfile,"%*.*s",fdwidth,fdwidth,fd->strdata);
                     break;
                 }
     }
-    printf("%s", "  ");
 }

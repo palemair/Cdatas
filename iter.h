@@ -3,18 +3,20 @@
 
 #include "table.h"
 
-typedef struct Iterator
+typedef struct Iter
 {
     struct table *tb; //table
     struct field *curr; //current field
     ssize_t xpos;
     ssize_t ypos;
-} iterator;
+} iter;
 
+typedef iter* iterator;
 
-void init_iter(iterator* it,struct table *);
-uint8_t next_iter(iterator* it);
-void fprint_iter(iterator* it,FILE* outputfile);
-void print_iter(iterator * it);
+iterator init_iter(struct table *);
+void destroy_iter(iterator it);
+uint8_t next_iter(iterator it);
+void fprint_iter(iterator it,FILE* outputfile);
+void print_iter(iterator it);
 
 #endif

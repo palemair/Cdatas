@@ -12,6 +12,7 @@
 /* simple csv field */
 struct field
 {
+   uint16_t just;
    uint16_t datatype;
    union
    {
@@ -26,6 +27,7 @@ struct field
 /* PROTOTYPES */
 int set_field (struct field* fd, char* value, regexarray* rg);
 void clear_field (struct field* fd);
+void print_field(struct field* fd, int fdwidth, int fdprecis);
 void fprint_field(struct field* fd,FILE* outputfile, int fmtstr, int fmtprecis);
 
 #endif

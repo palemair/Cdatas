@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <assert.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include "xtools.h"
@@ -127,4 +128,28 @@ char* xreadfile (char* filename)
         perror ("readfile");
         return NULL;
     }
+}
+
+/* converter base 10 to 26A */
+char *baseA(unsigned int nb)
+{
+    assert(nb <=65535);
+    
+    char vindex[]="    ";
+    int u = 3;
+    while(nb>26)
+    {
+        nb = nb -1;
+        unsigned int r = nb%26;
+        nb -= r;
+        r +=1;
+        vindex[u] = '@' + r;
+        nb /= 26;
+        u--;
+    }
+
+    vindex[u] = '@' + nb;
+    
+    char* ret = strdup(vindex);
+   return ret;
 }

@@ -5,6 +5,10 @@
 #include "regexarray.h"
 #include <stdint.h>
 
+uint16_t* mkwidth(struct table* tb);
+
+void lineH(struct table* tb, int lg,uint16_t* wd);
+
 int print_header(struct table* tb);
 
 void printline (struct table* tb, uint32_t index);
