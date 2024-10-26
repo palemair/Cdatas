@@ -11,13 +11,12 @@
 /* Assign a value to a field */
 int set_field (struct field* fd, char* value, regexarray* rg)
 {
-    fd->just = strlen(value);
-
+    fd->fdlenth = strlen (value);
     if (rg == NULL)
     {
         fd->nxt = NULL;
-        if(value !=NULL)
-        { 
+        if (value != NULL)
+        {
             fd->datatype = DESC;
             fd->strdata = strdup (value);
         }
@@ -31,7 +30,7 @@ int set_field (struct field* fd, char* value, regexarray* rg)
     else
     {
         fd->nxt = NULL;
-        fd->datatype = typedata(rg, value);
+        fd->datatype = typedata (rg, value);
         switch (fd->datatype)
         {
         case LONG:
@@ -104,95 +103,98 @@ int set_field (struct field* fd, char* value, regexarray* rg)
 /* deallocate field */
 void clear_field (struct field* fd)
 {
-    if ((fd->datatype) == STRING) free(fd->strdata);
-    if ((fd->datatype) == DESC) free(fd->strdata);
+    if ((fd->datatype) == STRING) free (fd->strdata);
+    if ((fd->datatype) == DESC) free (fd->strdata);
     fd->datatype = NIL;
     fd->strdata = NULL;
 }
 
 /* print to stdout */
-void print_field(struct field* fd, int fdwidth, int fdprecis)
+void print_field (const struct field* fd, int fdwidth, int fdprecis)
 {
     if (setlocale (LC_CTYPE, "") == NULL)
     {
         perror ("setlocale");
-        exit(EXIT_FAILURE);
+        exit (EXIT_FAILURE);
     }
 
-    wchar_t conv[1024] = {0};
+    wchar_t conv[1024] = { 0 };
     size_t lg = 0;
 
     switch (fd->datatype)
     {
-        case LONG:
-                {
-                    printf(" %*lld |",fdwidth,fd->lgdata);
-                    break;
-                }
+    case LONG:
+        {
+            printf ("%*lld", fdwidth, fd->lgdata);
+            break;
+        }
 
-        case FLOAT:
-                {
-                    printf(" %*.*f |",fdwidth,fdprecis,fd->dbdata);
-                    break;
-                }
-        case NIL:
-                {
-                    printf(" %-*.*s |",fdwidth,fdwidth,"---");
-                    break;
-                }
-        case STRING:
-                {
-                    char str[fdwidth + 1];
-                    sprintf(str,"%-*.*s",fdwidth,fdwidth,fd->strdata);
-                    mbstowcs (conv, str, strlen (str) + 1);
-                    lg = wcslen(conv);
-                    lg = strlen(str) - lg;
-                    int just = fdwidth + (int)lg;
-                    printf(" %-*.*s |",just,just,str);
-                    break;
-                }
-        case  DESC:
-                {
-                    char * buff = strdupa(fd->strdata);
-                    char result[(strlen (fd->strdata) + 1)];
-                    char* res = result;
-                    while ((*res++ = toupper (*buff++)));
-                    printf(" %*.*s |",fdwidth,fdwidth,result);
-                    break;
-                }
+    case FLOAT:
+        {
+            printf ("%*.*f", fdwidth, fdprecis, fd->dbdata);
+            break;
+        }
+    case NIL:
+        {
+            printf ("%-*.*s", fdwidth, fdwidth, "÷÷÷");
+            break;
+        }
+    case STRING:
+        {
+            char str[fdwidth + 1];
+
+            sprintf (str, "%-*.*s", fdwidth, fdwidth, fd->strdata);
+            mbstowcs (conv, str, strlen (str) + 1);
+            lg = wcslen (conv);
+            lg = strlen (str) - lg;
+            int just = fdwidth + (int) lg;
+
+            printf ("%-*.*s", just, just, str);
+            break;
+        }
+    case DESC:
+        {
+            char* buff = strdupa (fd->strdata);
+            char result[(strlen (fd->strdata) + 1)];
+            char* res = result;
+
+            while ((*res++ = toupper (*buff++)));
+            printf ("%*.*s", fdwidth, fdwidth, result);
+            break;
+        }
     }
 }
 
 /* print to file */
-void fprint_field(struct field* fd,FILE* outputfile, int fdwidth, int fdprecis)
+void fprint_field (const struct field* fd, FILE* outputfile, int fdwidth, int fdprecis)
 {
     switch (fd->datatype)
     {
-        case LONG:
-                {
-                    fprintf (outputfile,"%lld",fd->lgdata);
-                    break;
-                }
+    case LONG:
+        {
+            fprintf (outputfile, "%lld", fd->lgdata);
+            break;
+        }
 
-        case FLOAT:
-                {
-                    fprintf (outputfile,"%*.*f",fdwidth,fdprecis,fd->dbdata);
-                    break;
-                }
-        case NIL:
-                {
-                    fprintf (outputfile,"%-*.*s",fdwidth,fdwidth,"");
-                    break;
-                }
-        case STRING:
-                {
-                    fprintf(outputfile,"%-*.*s",fdwidth,fdwidth,fd->strdata);
-                    break;
-                }
-        case  DESC:
-                {
-                    fprintf(outputfile,"%*.*s",fdwidth,fdwidth,fd->strdata);
-                    break;
-                }
+    case FLOAT:
+        {
+            fprintf (outputfile, "%*.*f", fdwidth, fdprecis, fd->dbdata);
+            break;
+        }
+    case NIL:
+        {
+            fprintf (outputfile, "%-*.*s", fdwidth, fdwidth, "");
+            break;
+        }
+    case STRING:
+        {
+            fprintf (outputfile, "%-*.*s", fdwidth, fdwidth, fd->strdata);
+            break;
+        }
+    case DESC:
+        {
+            fprintf (outputfile, "%*.*s", fdwidth, fdwidth, fd->strdata);
+            break;
+        }
     }
 }

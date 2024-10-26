@@ -2,17 +2,18 @@
 #include "regexarray.h"
 #include "xtools.h"
 
-#define STRLONG "^[-0-9] *+[0-9]* *+$" 
-#define STRFLOA "^[-0-9]+[,\\.][0-9]+$" 
+#define STRLONG "^[-0-9] *+[0-9]* *+$"
+#define STRFLOA "^[-0-9]+[,\\.][0-9]+$"
 #define STRTIME "^[0-9]{2} *: *[0-9]{2}|[0-9]{2} *: *[0-9]{2}$"
 #define STRDATE "^[0-9]{2}/[0-9]{2}/[0-9]{2,4}$"
-#define STRPERC "^[-0-9]+[,\\.][0-9]+ *%$" 
+#define STRPERC "^[-0-9]+[,\\.][0-9]+ *%$"
 
 /* regex pattern array in order to test type of a string */
 
 regexarray* reg_init (void)
 {
     int err;
+
     char* patterns[] = {
         STRLONG,
         STRFLOA,
@@ -21,6 +22,7 @@ regexarray* reg_init (void)
         STRPERC
     };
     regexarray* regarray = malloc (sizeof (*regarray));
+
     regarray->lgreg_list = ARRAYSIZE (patterns);
     regex_t* preg = malloc (sizeof (regex_t) * regarray->lgreg_list);
 
@@ -31,6 +33,7 @@ regexarray* reg_init (void)
         {
             size_t size = regerror (err, &preg[x], NULL, 0);
             char text[size + 1];
+
             regerror (err, &preg[x], text, size);
             fprintf (stderr, "%s\n", text);
         }
@@ -39,7 +42,7 @@ regexarray* reg_init (void)
     return regarray;
 }
 
-void free_reg (regexarray * rp)
+void free_reg (regexarray* rp)
 {
     for (int x = 0; x < rp->lgreg_list; x++)
     {
@@ -49,7 +52,7 @@ void free_reg (regexarray * rp)
     free (rp);
 }
 
-int typedata (regexarray * p, const char* strtest)
+int typedata (regexarray* p, const char* strtest)
 {
     if (strtest == NULL)
     {

@@ -6,187 +6,174 @@
 #include "print.h"
 #include "xtools.h"
 
-static int lg = 5;
+static const char* BEGIN_WD = "| ";
+static const char* END_WD = " |";
+static const char CROSS = '+';
+static const char LINE = '-';
+static const char SPACE = ' ';
 
 //print horizontal line
-uint16_t* mkwidth(struct table* tb)
+static int lineH (struct table* tb)
 {
-    uint16_t* tmp = xmalloc(sizeof(*tmp) * tb->width); 
-    uint16_t* p = tmp;
-    struct field* tf = tb->desc->head;
-    
-    while(tf != NULL)
+    if (tb == NULL)
     {
-      *p++=tf->just;
-      tf = tf->nxt;
+
+
+        fprintf (stderr, "%s\n", "Init table first !!");
+        return EXIT_FAILURE;
     }
-    
-    iterator it = init_iter(tb);
-    while(next_iter(it)) 
-            {
-                tmp[it->xpos] = (tmp[it->xpos] >= it->curr->just) ? tmp[it->xpos] : it->curr->just;
-            }
-    destroy_iter(it);
-
-    return tmp;
-}
-
-void lineH(struct table* tb, int lg,uint16_t* wd)
-{
-    printf("%c",'+');
-    for(int i =0; i<(lg + 2); i++) printf("%c",'-');
-    
-    printf("%c",'+');
-    for(int u =0; u<(tb->width) ; u++)
-    {
-        for(int i =0; i<(wd[u] + 2) ; i++) printf("%c",'-');
-        printf("%c",'+');
-    }
-    printf ("\n");
-}
-    
-int print_header (struct table* tb)
-{
-    uint16_t* pt = mkwidth(tb);
-    
-    lineH(tb,lg,pt);
-
-    printf ("| %*s |",lg,"Desc");
-    if (tb->header)
+    else
     {
         struct field* fd = tb->desc->head;
-        int u = 0;
-        while (fd)
-        {
-            print_field(fd, pt[u], pt[u]);
-            u++;
-            fd = fd->nxt;
-        }
-        putchar ('\n');
-    }
-    else
-    {
-        char *pts = NULL;
-        
-        for(unsigned int i = 1; i<=tb->width;i++)
-        {
-            pts = baseA(i);
-            printf(" %*s |",tb->fdwidth,pts);
-         }
-        putchar('\n');
-    }
 
-    lineH(tb,lg,pt);
-    free(pt);
-    return 0;
+        putchar (CROSS);
+        for (int i = 0; i < (tb->lgcol1 + 2); i++) putchar (LINE);
+
+        putchar (CROSS);
+        while (fd != NULL)
+        {
+            for (int i = 0; i < (fd->fdlenth + 2); i++) putchar (LINE);
+            fd = fd->nxt;
+            putchar (CROSS);
+        }
+        printf ("\n");
+    }
+    return EXIT_FAILURE;
 }
 
-void printline (struct table* tb, uint32_t index)
+/* print first line containing descriptors */
+int print_header (struct table* tb)
 {
-    uint16_t* pt = mkwidth(tb);
-
     if (tb == NULL)
     {
         fprintf (stderr, "%s\n", "Init table first !!");
+        return EXIT_FAILURE;
+    }
+
+    lineH (tb);
+    char* strdesc = "Desc.";
+
+    printf ("%s", BEGIN_WD);
+    printf ("%*.*s", tb->lgcol1, (int) strlen (strdesc), strdesc);
+    printf ("%s", END_WD);
+    struct field* fd = tb->desc->head;
+
+    while (fd)
+    {
+        putchar (SPACE);
+        print_field (fd, fd->fdlenth, fd->fdlenth);
+        printf ("%s", END_WD);
+        fd = fd->nxt;
+    }
+    putchar ('\n');
+    lineH (tb);
+    return EXIT_SUCCESS;
+}
+
+/* print simple line nb index */
+int printline (struct table* tb, uint32_t index)
+{
+    if (tb == NULL)
+    {
+        fprintf (stderr, "%s\n", "Init table first !!");
+        return EXIT_FAILURE;
     }
     else
     {
+        struct field* fdw = tb->desc->head;
         struct field* fd = tb->t[index]->head;
-        int u=0;
+
+        printf ("%s", BEGIN_WD);
+        printf ("%*u", tb->lgcol1, index);
+        printf ("%s", END_WD);
         while (fd)
         {
-            print_field(fd, pt[u], pt[u]);
-            u++;
+            putchar (SPACE);
+            print_field (fd, fdw->fdlenth, fdw->fdlenth);
+            printf ("%s", END_WD);
+            fdw = fdw->nxt;
             fd = fd->nxt;
         }
         putchar ('\n');
     }
-    free(pt);
+    return EXIT_SUCCESS;
 }
 
-void printlines (struct table* tb, uint32_t start, uint32_t stop)
+/* print lines from start(included) to stop (not included) */
+int printlines (struct table* tb, uint32_t start, uint32_t stop)
 {
-    uint16_t* pt = mkwidth(tb);
     if (tb == NULL)
     {
         fprintf (stderr, "%s\n", "Init table first !!");
+        return EXIT_FAILURE;
     }
     else
     {
-        struct field* fd;
         stop = (stop >= tb->height) ? tb->height : stop;
-
-        for (unsigned u = start; u < stop; u++)
-        {
-            fd = tb->t[u]->head;
-            printf ("| %*u |",lg, u);
-            int v=0;
-            while (fd)
-            {
-                print_field (fd, pt[v], pt[v]);
-                v++;
-                fd = fd->nxt;
-            }
-            putchar ('\n');
-        }
+        for (unsigned u = start; u < stop; u++) printline (tb, u);
+        return EXIT_SUCCESS;
     }
-    free(pt);
 }
 
-void printable (struct table* tb)
+int printable (struct table* tb)
 {
     print_header (tb);
     printlines (tb, 0, tb->height);
-    uint16_t* pt = mkwidth(tb);
-    lineH(tb,lg,pt);
-    free(pt);
+    lineH (tb);
+    return EXIT_SUCCESS;
 }
 
-void r_printable (struct table* tb, unsigned int step)
+int r_printable (struct table* tb, unsigned int step)
 {
     print_header (tb);
     printlines (tb, 0, step);
 
-    struct field* fd = tb->t[step]->head;
-    char *buff = "... |";
+    struct field* fdw;
+    struct field* fd;
+    char* buff = "...";
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 3; i++)
     {
-        printf ("%*.*s",lg,lg-2,buff);
-        while(fd)
+        fdw = tb->desc->head;
+        fd = tb->t[step]->head;
+        printf ("%s", BEGIN_WD);
+        printf ("%*.*s", tb->lgcol1, tb->lgcol1, buff);
+        printf ("%s", END_WD);
+        while (fdw)
         {
-            if(fd->datatype == STRING || fd->datatype == NIL)
-                printf("%-*s",tb->fdwidth, buff);
+            putchar (SPACE);
+            if (fd->datatype == STRING)
+                printf ("%-*.*s", fdw->fdlenth, (int) strlen (buff), buff);
             else
-                printf("%*s",tb->fdwidth, buff);
-
+                printf ("%*.*s", fdw->fdlenth, (int) strlen (buff), buff);
+            printf ("%s", END_WD);
+            fdw = fdw->nxt;
+            fd = fd->nxt;
         }
         printf ("\n");
     }
     printlines (tb, (tb->height - step), tb->height);
-    uint16_t* pt = mkwidth(tb);
-    lineH(tb,lg,pt);
-    free(pt);
+    lineH (tb);
+    return EXIT_SUCCESS;
 }
 
-int head(struct table* tb,unsigned int step)
+int head (struct table* tb, unsigned int step)
 {
     print_header (tb);
-    (tb->height>step)? printlines(tb,0,step):printlines(tb,0,tb->height);
-    uint16_t* pt = mkwidth(tb);
-    lineH(tb,lg,pt);
-    free(pt);
+    (tb->height > step) ? printlines (tb, 0, step) : printlines (tb, 0, tb->height);
+
+    lineH (tb);
 
     return EXIT_SUCCESS;
 }
 
-int tail(struct table* tb, unsigned int step)
+int tail (struct table* tb, unsigned int step)
 {
     print_header (tb);
-    (tb->height>step)? printlines(tb,(tb->height)-step,tb->height):printlines(tb,0,tb->height);
-    uint16_t* pt = mkwidth(tb);
-    lineH(tb,lg,pt);
-    free(pt);
+    (tb->height > step) ? printlines (tb, (tb->height) - step,
+                                      tb->height) : printlines (tb, 0, tb->height);
+
+    lineH (tb);
 
     return EXIT_SUCCESS;
 }

@@ -16,7 +16,5 @@ typedef iter* iterator;
 iterator init_iter(struct table *);
 void destroy_iter(iterator it);
 uint8_t next_iter(iterator it);
-void fprint_iter(iterator it,FILE* outputfile);
-void print_iter(iterator it);
 
 #endif

@@ -26,7 +26,7 @@ int append (struct list** ls, regexarray* rg, void* value)
     }
     else
     {
-        struct field* new = xcalloc (1,sizeof (*new));
+        struct field* new = xcalloc (1, sizeof (*new));
 
         if (set_field (new, value, rg) == ERR)
         {

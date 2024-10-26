@@ -8,21 +8,30 @@
 
 int main ()
 {
-    if(setlocale(LC_CTYPE | LC_COLLATE,"") == NULL)
+    if (setlocale (LC_CTYPE | LC_COLLATE, "") == NULL)
     {
-        perror("setlocale");
+        perror ("setlocale");
         return EXIT_FAILURE;
     }
-    
+
     START;
-    struct table* tb = load_csv ("CSV-file/technic.csv", ',', true,true);
+    struct table* tb = load_csv ("CSV-file/technic.csv", ',', true, true);
     STOP;
-    
     TPS ("load_csv");
 
-    tail(tb,20);
+    print_header (tb);
+    printline (tb, 1);
+    printline (tb, 5);
+    printlines (tb, 5, 12);
+    r_printable (tb, 5);
 
     drop_table (tb);
-    
+
+    struct table* t = load_csv ("CSV-file/technic.csv", ',', false, true);
+
+    head (t, 10);
+    tail (t, 10);
+    drop_table (t);
+
     return EXIT_SUCCESS;
 }
