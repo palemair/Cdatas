@@ -9,6 +9,5 @@
 /* prototypes */
 struct table* load_csv (char *filename, char delim, bool header, bool dataconv);
 int parse_csv (char *datas, regexarray * rp, struct table **tb);
-int write_csv (char* filename, struct table *tb);
 
 #endif

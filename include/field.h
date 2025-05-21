@@ -28,6 +28,6 @@ struct field
 int set_field (struct field* fd, char* value, regexarray* rg);
 void clear_field (struct field* fd);
 void print_field(const struct field* fd, int fdwidth, int fdprecis);
-void fprint_field(const struct field* fd,FILE* outputfile);
+void fprint_field(const struct field* fd,FILE* outputfile, int fdwidth, int fdprecis);
 
 #endif

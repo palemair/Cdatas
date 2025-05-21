@@ -232,36 +232,3 @@ struct table* load_csv (char* filename, char delim, bool header, bool dataconver
 
     return tb;
 }
-
-int write_csv (char* filename, struct table* tb)
-{
-    FILE* outfile = fopen (filename, "w");
-
-    if (outfile == NULL)
-    {
-        perror ("fopen");
-        return EXIT_FAILURE;
-    }
-    iterator it = init_iter (tb);
-    int just = 0;
-
-    while (next_iter (it))
-    {
-        if (it->curr->datatype == STRING)
-        {
-            just = strlen (it->curr->strdata);
-            fputc ('"', outfile);
-            fprint_field (it->curr, outfile, just, just);
-            fputc ('"', outfile);
-        }
-        else
-        {
-            fprint_field (it->curr, outfile, just, 6);
-        }
-        fprintf (outfile, "%c", (it->xpos == tb->width - 1) ? '\n' : tb->delim);
-    }
-    destroy_iter (it);
-    fclose (outfile);
-
-    return EXIT_SUCCESS;
-}
