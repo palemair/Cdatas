@@ -1,40 +1,42 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -pedantic -std=c11 -fno-common -fno-builtin
+ 
+# Les différents répertoires contenant respectivement les fichiers : Sources *.c, Headers *.h, Objets *.o, l'exécutable
+SRCDIR=src
+HEADDIR=include
+LIBDIR=obj
+BINDIR=bin
+ 
+ 
+# Les différentes options de compilations, soyons strictes !
+CFLAGS= -g -Wall -pedantic -Os -Wextra -std=c11 -fno-common -fno-builtin
+
+# Les différents FrameWorks et bibliothèques pour le linkage
 LDFLAGS=
-EXEC=cdatas
+ 
+# L'exécutable
+BIN=cdatas
+ 
+# Où trouver les différents sources *.c qu'il faudra compiler pour créer les objets correspondants
+SRC= $(wildcard $(SRCDIR)/*.c)
+OBJ= $(SRC:$(SRCDIR)/%.c=$(LIBDIR)/%.o)
+ 
+all: $(BIN)
+ 
+#Création de l'exécutable
+cdatas: $(OBJ) 
+	$(CC) -o $(BINDIR)/$@ $^ $(CFLAGS) $(GLLIBS)
+ 
+$(LIBDIR)/main.o: $(SRCDIR)/main.c
+	$(CC) -o $@ -c $< $(CFLAGS)
 
-all: $(EXEC)
-
-cdatas: main.o csv.o table.o print.o list.o iter.o field.o regexarray.o xtools.o
-	$(CC) -o $@ $^ $(LDFLAGS)
-
-main.o: main.c
-	$(CC) -c $^ $(CFLAGS)
-
-xtools.o: xtools.c
-	$(CC) -c $^ $(CFLAGS)
-
-regexarray.o: regexarray.c
-	$(CC) -c $^ $(CFLAGS)
-
-list.o: list.c
-	$(CC) -c $^ $(CFLAGS)
-
-print.o: print.c
-	$(CC) -c $^ $(CFLAGS)
-
-table.o: table.c
-	$(CC) -c $^ $(CFLAGS)
-
-csv.o: csv.c
-	$(CC) -c $^ $(CFLAGS)
-
-iter.o: iter.c
-	$(CC) -c $^ $(CFLAGS)
-
-field.o: field.c
-	$(CC) -c $^ $(CFLAGS)
-
+# Création des différents *.o à partir des *.c
+$(LIBDIR)/%.o: $(SRCDIR)/%.c $(HEADDIR)/%.h 
+	$(CC) -o $@ -c $< $(CFLAGS)
+ 
+# Nettoyage des objets => Tout sera recompiler !
 clean:
-	rm -rf *.o
-	rm $(EXEC)
+	rm $(LIBDIR)/*.o
+ 
+# Nettoyage complet => clean + effacement du l'exécutable
+Clean: clean
+	rm $(BINDIR)/*
