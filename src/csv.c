@@ -2,9 +2,9 @@
 #define _GNU_SOURCE
 #include <string.h>
 #include <time.h>
-#include "../include/csv.h"
-#include "../include/iter.h"
-#include "../include/xtools.h"
+#include "csv.h"
+#include "iter.h"
+#include "xtools.h"
 
 /* turing machine parsing */
 int parse_csv (char* datas, regexarray* rp, struct table** tb)

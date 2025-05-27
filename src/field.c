@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include <wchar.h>
 #include <errno.h>
-#include "../include/field.h"
+#include "field.h"
 
 /* Assign a value to a field */
 int set_field (struct field* fd, char* value, regexarray* rg)

@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include "../include/xtools.h"
+#include "xtools.h"
 
 /* malloc custom to avoid error test */
 void* xmalloc (size_t size)

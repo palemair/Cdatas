@@ -1,6 +1,6 @@
 #define _GNU_SOURCE
-#include "../include/iter.h"
-#include "../include/xtools.h"
+#include "iter.h"
+#include "xtools.h"
 
 iterator init_iter (struct table* tb)
 {

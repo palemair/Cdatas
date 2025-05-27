@@ -1,8 +1,8 @@
 /* handle a csvfile with C */
 /* #define _GNU_SOURCE */
-#include "../include/table.h"
-#include "../include/iter.h"
-#include "../include/xtools.h"
+#include "table.h"
+#include "iter.h"
+#include "xtools.h"
 
 struct table* init_table (char delim, bool header)
 {

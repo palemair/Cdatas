@@ -1,10 +1,10 @@
 /* handle a csvfile with C */
 #define _GNU_SOURCE
 #include <ctype.h>
-#include "../include/table.h"
-#include "../include/iter.h"
-#include "../include/print.h"
-#include "../include/xtools.h"
+#include "table.h"
+#include "iter.h"
+#include "print.h"
+#include "xtools.h"
 
 static const char* BEGIN_WD = "| ";
 static const char* END_WD = " |";

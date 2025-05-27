@@ -1,8 +1,8 @@
 /* handle a csvfile with C */
 #define _GNU_SOURCE
 #include <errno.h>
-#include "../include/list.h"
-#include "../include/xtools.h"
+#include "list.h"
+#include "xtools.h"
 
 /* Initialize a list */
 struct list* init_list (void)

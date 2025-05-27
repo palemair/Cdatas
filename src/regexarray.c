@@ -1,6 +1,6 @@
 #define _GNU_SOURCE
-#include "../include/regexarray.h"
-#include "../include/xtools.h"
+#include "regexarray.h"
+#include "xtools.h"
 
 #define STRLONG "^[-0-9] *+[0-9]* *+$"
 #define STRFLOA "^[-0-9]+[,\\.][0-9]+$"
